@@ -1,3 +1,5 @@
-fn main() {
-    println!("Hello, world!");
-}
+mod game;
+mod gamepool;
+mod server;
+
+fn main() {}
