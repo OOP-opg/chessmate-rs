@@ -1,7 +1,7 @@
 use gamepool::IGameInfo;
 use game::{IGameAction, IGameReplay};
 
-pub trait IUser {};
+pub trait IUser {}
 
 
 pub trait IServer {

@@ -1,16 +1,16 @@
 mod server;
-mod game;
+mod engine;
 
 use server::IUser;
 use game::{IGame, IGameReplay, IGameAction};
 
-pub trait IGameInfo {};
+pub trait IGameInfo {}
 
 pub trait ITicket {
     pub fn is_valid(&self) -> bool;
 }
 
-pub trait ITicketStats {};
+pub trait ITicketStats {}
 
 pub enum TicketError {
     TooMany,
