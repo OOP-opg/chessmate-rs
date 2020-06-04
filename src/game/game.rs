@@ -25,10 +25,12 @@ impl Game {
     /// # Arguments
     /// * `action` - user-format action
     /// # Returns
-    /// * `bool` - true if action is correct and was applied to the game, false if incorrent and should be discarded
+    /// * `true` - action is correct and ends the game
+    /// * `false` - action is correct and doesn't end the game
+    /// * `DoActionError` - action is incorrect see enum description for details
     pub fn do_action(&self, action: UserAction) -> Result<bool, DoActionError> {
         print!("Action happened: {}", action);
-        Ok(true)
+        Ok(false)
     }
 
     pub fn new() -> Game {
