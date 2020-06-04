@@ -1,3 +1,5 @@
+use crate::engine;
+
 pub type UserAction = String;
 pub type Replay = String;
 pub type UserGameState = String;
