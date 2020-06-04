@@ -41,7 +41,7 @@ pub struct Ticket {
 }
 
 impl Ticket {
-    pub fn new(/*TODO: add any parameters*/) -> {
+    pub fn new(/*TODO: add any parameters*/) -> Ticket{
         Ticket {
             
         }
