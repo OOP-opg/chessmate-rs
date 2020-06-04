@@ -37,18 +37,17 @@ impl Game {
 }
 
 pub struct Ticket {
-    wish: String,
+    side: String,
+}
+
+impl Ticket {
+    pub fn new(/*TODO: add any parameters*/) -> {
+        Ticket {
+            
+        }
+    }
 }
 
 pub struct Engine {}
 
-impl Engine {
-    /// Determines whether ticket is valid or not
-    /// # Arguments
-    /// * `ticket` - ticket to check
-    /// # Returns
-    /// * `bool`
-    fn is_ticket_valid(ticket: Ticket) -> bool {
-        ticket.wish.len() > 0
-    }
-}
+impl Engine { }

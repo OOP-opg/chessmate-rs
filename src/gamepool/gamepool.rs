@@ -20,10 +20,8 @@ pub struct GamePool {
 /// Enum of errors that might occur when trying to add a ticket
 /// * `TooMany` - will occur when limit of tickets in lobby is achieved
 /// * `AlreadyPlaying` - will occur if specified user is already playing
-/// * `InvalidTicket` - will occur with tickets, considered as invalid by chess engine
 pub enum SetTicketError {
     AlreadyPlaying,
-    InvalidTicket,
     TooMany,
 }
 
@@ -36,6 +34,7 @@ pub enum DoGameActionError {
     NotPlaying,
     BadGame,
     BadUser,
+    BadAction(engine::DoActionError),
 }
 
 impl GamePool {
@@ -119,27 +118,31 @@ impl GamePool {
     /// * `action` - game action itself
     /// # Returns
     /// * `None` - on success, if action doesn't end the game
-    /// * `Game` - on success, if action ends the game, so you can disconnect users
+    /// * `GameInfo` - on success, if action ends the game, so you can disconnect users
     /// * `DoGameActionError` - see enum definition for details
     pub fn do_game_action(
         &self,
         &game_id: &GameId,
         &user_id: &UserId,
         action: engine::UserAction,
-    ) -> Result<Option<&GameInfo>, Result<DoGameActionError, engine::DoActionError>> {
+    ) -> Result<Option<&GameInfo>, DoGameActionError> {
         match self.games.get(&game_id) {
             Some(game_info) => {
                 if game_info.users.contains(&user_id) {
                     match game_info.game.do_action(action) {
-                        Ok(true) => Ok(Some(game_info)),
+                        Ok(true) => {
+                            game_info.user.iter().map(|user_id| {self.playing_users.remove(&user_id)});
+                            self.games.remove(&game_id);
+                            Ok(Some(game_info))
+                        }
                         Ok(false) => Ok(None),
                         Err(err) => Err(Err(err)),
                     }
                 } else {
                     if self.playing_users.contains_key(&user_id) {
-                        Err(Ok(DoGameActionError::BadUser))
+                        Err(DoGameActionError::BadUser)
                     } else {
-                        Err(Ok(DoGameActionError::NotPlaying))
+                        Err(DoGameActionError::NotPlaying)
                     }
                 }
             }
