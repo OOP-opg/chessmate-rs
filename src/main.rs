@@ -25,7 +25,7 @@ type Id = u32;
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     let (sender_events, receiver_events) = unbounded::<(Color, UserId)>();
-    let (sender_pairing, receiver_pairing) = unbounded::<(GameId, GameUsers)>();
+    let (sender_pairing, receiver_pairing) = unbounded::<Paired>();
     let front_events = web::Data::new(sender_events);
     let pairing_sender = web::Data::new(sender_pairing.clone());
     let pairing_events = web::Data::new(receiver_pairing);

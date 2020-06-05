@@ -1,10 +1,16 @@
 use crossbeam_channel::{select, Receiver, Sender};
 
-use crate::UserId;
+use crate::{UserId, GameId};
 use crate::Color;
 use crate::game::Ticket;
 use crate::gamepool::{GamePool, Lobby};
 
+
+#[derive(Debug)]
+pub struct Paired {
+    pub user_id: UserId,
+    pub game_id: GameId,
+}
 
 pub fn pairing_loop(event_reciever: Receiver<(Color, UserId)>, pairing_sender: Sender<Paired>) {
     std::thread::spawn(move || {
@@ -25,9 +31,9 @@ pub fn pairing_loop(event_reciever: Receiver<(Color, UserId)>, pairing_sender: S
                     match set_ticket_result {
                         Ok(res) => { 
                             match res {
-                                Some((gameid, userid)) => {
-                                    println!("Send pair: {:?}", pairing_sender.send(black));
-                                    println!("Send pair: {:?}", pairing_sender.send(white));
+                                Some((gameid, users)) => {
+                                    println!("Send pair: {:?}", pairing_sender.send(Paired { user_id: users[0], game_id: gameid }));
+                                    println!("Send pair: {:?}", pairing_sender.send(Paired { user_id: users[1], game_id: gameid }));
                                 }
                                 None => { println!("Not found pair"); }
                             }

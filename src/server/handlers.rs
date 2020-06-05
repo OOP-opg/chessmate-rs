@@ -27,8 +27,8 @@ impl FromStr for Color {
     }
 }
 use crate::game::Move;
-use crate::gamepool::GameId;
-use crate::gamepool::UserId;
+use crate::server::pairing::Paired;
+use crate::gamepool::{GameId, UserId};
 
 #[get("/api/action/{gameid}/{userid}/{action}/{move_from}/{move_to}/{castling}")]
 pub async fn action(
@@ -56,7 +56,7 @@ pub async fn new_game(
         select! {
             recv(pairing_events) -> pair => {
                 let recieved_pair = pair.unwrap(); 
-                if recieved_pair.id == info.1 {
+                if recieved_pair.user_id == id_reqw {
                     return format!("Found {:?}", recieved_pair);
                 } else {
                     let miss = pairing_sender.send(recieved_pair);
