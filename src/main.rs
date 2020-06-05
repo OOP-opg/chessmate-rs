@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 use std::str::FromStr;
 
 use actix_files as fs;
@@ -12,6 +13,12 @@ use actix_web::{
 };
 use crossbeam_channel::{select, unbounded, Receiver, Sender};
 
+=======
+
+mod engine;
+mod game;
+mod gamepool;
+>>>>>>> master
 mod server;
 use server::pairing;
 
@@ -89,6 +96,7 @@ async fn main() -> std::io::Result<()> {
     let pairing_sender = web::Data::new(sender_pairing.clone());
     let pairing_events = web::Data::new(receiver_pairing);
 
+<<<<<<< HEAD
     pairing::pairing_loop(receiver_events.clone(), sender_pairing.clone());
     HttpServer::new(move || {
         App::new()
@@ -103,3 +111,9 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
+=======
+fn main() {
+
+}
+
+>>>>>>> master
