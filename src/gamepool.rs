@@ -1,4 +1,4 @@
-use crate::game;
+use crate::game::{self, Ticket};
 
 use std::collections::HashMap;
 
@@ -127,6 +127,7 @@ pub struct Lobby {
 /// Enum of errors that might occur when trying to add a ticket
 /// * `TooMany` - will occur when limit of tickets in lobby is achieved
 /// * `AlreadyPlaying` - will occur if specified user is already playing
+#[derive(Debug)]
 pub enum SetTicketError {
     AlreadyPlaying,
     TooMany,
@@ -162,9 +163,10 @@ impl Lobby {
     /// * `SetTicketError` - see enum definition for details
     pub fn set_ticket(
         &mut self,
-        &user_id: &UserId,
-        ticket: engine::Ticket,
-    ) -> Result<(), SetTicketError> {
+        user_id: UserId,
+        ticket: Ticket,
+    ) -> Result<Option<(GameId, GameUsers)>, SetTicketError> {
+
         if self.playing_users.contains_key(&user_id) {
             Err(SetTicketError::AlreadyPlaying)
         } else if self.tickets.len() >= GamePool::MAX_LOBBY_SIZE {
@@ -173,9 +175,9 @@ impl Lobby {
             // TODO: implement ticket checking
             self.tickets.insert(user_id, ticket);
             Ok(())
+        }
 
         ticket: game::Ticket,
-    ) -> Result<Option<(GameId, GameUsers)>, SetTicketError> {
         if self.game_pool.playing_users.contains_key(&user_id) {
             Err(SetTicketError::AlreadyPlaying)
         } else if self.tickets.len() >= Lobby::MAX_LOBBY_SIZE {

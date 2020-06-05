@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use actix_files as fs;
 use actix_web::{
+    web,
     App,
     HttpServer,
 };
@@ -13,46 +14,23 @@ mod gamepool;
 mod server;
 
 use server::handlers::{new_game, index};
-use server::pairing;
+use server::pairing::{pairing_loop, Paired};
 
-#[derive(Debug)]
-pub enum Choice {
-    Black,
-    White,
-}
-
-#[derive(Debug)]
-pub enum ChoiceParseErr {
-    InvalidChoice,
-}
-
-impl FromStr for Choice {
-    type Err = ChoiceParseErr;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "Black" | "black" => Ok(Choice::Black),
-            "White" | "white" => Ok(Choice::White),
-            _ => Err(ChoiceParseErr::InvalidChoice),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Paired {
-    id: Id,
-}
+use crate::game::Color;
+use crate::game::Move;
+use crate::gamepool::{GameId, GameUsers};
+use crate::gamepool::UserId;
 
 type Id = u32;
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    let (sender_events, receiver_events) = unbounded::<(Choice, Id)>();
-    let (sender_pairing, receiver_pairing) = unbounded::<Paired>();
+    let (sender_events, receiver_events) = unbounded::<(Color, UserId)>();
+    let (sender_pairing, receiver_pairing) = unbounded::<(GameId, GameUsers)>();
     let front_events = web::Data::new(sender_events);
     let pairing_sender = web::Data::new(sender_pairing.clone());
     let pairing_events = web::Data::new(receiver_pairing);
 
-    pairing::pairing_loop(receiver_events.clone(), sender_pairing.clone());
+    pairing_loop(receiver_events.clone(), sender_pairing.clone());
     HttpServer::new(move || {
         App::new()
             .app_data(front_events.clone())

@@ -1,30 +1,40 @@
-use crate::Paired;
-use crate::Id;
-use crate::Choice;
 use crossbeam_channel::{select, Receiver, Sender};
 
-pub fn pairing_loop(event_reciever: Receiver<(Choice, Id)>, pairing_sender: Sender<Paired>) {
+use crate::UserId;
+use crate::Color;
+use crate::game::Ticket;
+use crate::gamepool::{GamePool, Lobby};
+
+
+pub fn pairing_loop(event_reciever: Receiver<(Color, UserId)>, pairing_sender: Sender<Paired>) {
     std::thread::spawn(move || {
-        let (mut blacks, mut whites) = (vec![], vec![]);
+        let gamepool = GamePool::new();
+        let lobby = Lobby::new(gamepool);
 
         loop {
             select! {
                 recv(event_reciever) -> event => {
                     println!("{:?} received", event);
-                    match event.unwrap() {
-                        (Choice::Black, id) => { blacks.push(id); },
-                        (Choice::White, id) => { whites.push(id); },
+
+
+                    let set_ticket_result = match event.unwrap() {
+                        (Color::Black, id) => lobby.set_ticket(id, Ticket {side: Color::Black}),
+                        (Color::White, id) => lobby.set_ticket(id, Ticket {side: Color::White}),
                     };
 
-                    if blacks.len() > 0 && whites.len() > 0  {
-                        let black = Paired {
-                            id: blacks.pop().unwrap()
-                        };
-                        let white = Paired {
-                            id: whites.pop().unwrap()
-                        };
-                        println!("Send pair: {:?}", pairing_sender.send(black));
-                        println!("Send pair: {:?}", pairing_sender.send(white));
+                    match set_ticket_result {
+                        Ok(res) => { 
+                            match res {
+                                Some((gameid, userid)) => {
+                                    println!("Send pair: {:?}", pairing_sender.send(black));
+                                    println!("Send pair: {:?}", pairing_sender.send(white));
+                                }
+                                None => { println!("Not found pair"); }
+                            }
+                        },
+                        Err(err) => {
+                            println!("Error {:?}", err);
+                        }
                     }
                 },
             }

@@ -1,10 +1,8 @@
-
 use crate::engine;
 pub type Replay = String;
 pub type UserGameState = String;
-use crate::engine::Color;
-use crate::engine::Move;
-use crate::engine::MoveType;
+pub use crate::engine::Color;
+pub use crate::engine::Move;
 use crate::gamepool::UserId;
 
 pub enum UserActionType{
@@ -17,8 +15,6 @@ pub struct UserAction{
     game_move: Option<Move>,
     draw_from: Option<UserId>,
 }
-
-
 
 
 pub struct Game {
