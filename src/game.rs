@@ -1,3 +1,4 @@
+
 use crate::engine;
 pub type Replay = String;
 pub type UserGameState = String;
@@ -24,20 +25,25 @@ pub struct Game {
     board_state: engine::BoardState,
     user1: UserId,
     user2: UserId,
+
 }
 
 pub enum DoActionError {
     WrongTurn,
     InvalidAction,
+
     InvalidUser,
+
 }
 
 impl Game {
     /// Provides user-format representation of game state
     /// # Returns
     /// * `UserGameState`
+
     pub fn get_state(&self) -> UserGameState {
         self.board_state.export_to_fen()
+
     }
 
     /// Performs game action
@@ -48,6 +54,7 @@ impl Game {
     /// * `false` - action is correct and doesn't end the game
     /// * `DoActionError` - action is incorrect see enum description for details
     pub fn do_action(&self, action: UserAction) -> Result<bool, DoActionError> {
+
         match action.action_type{
         UserActionType::Move => {
             if action.user != self.user1 && action.user != self.user2 {return Err(DoActionError::InvalidUser)};
@@ -85,3 +92,4 @@ impl Ticket {
         }
     }
 }
+

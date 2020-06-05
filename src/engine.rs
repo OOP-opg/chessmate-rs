@@ -1,5 +1,4 @@
 
-
 const START_POS: [u8; 64] = [114, 110, 98, 113, 107, 98, 110, 114, 
                                    112, 112, 112, 112, 112, 112, 112, 112, 
                                    46, 46, 46, 46, 46, 46, 46, 46, 
@@ -16,7 +15,9 @@ const PAWN_W: [(i8, i8); 2] = [(-1, -1),(1, -1)];
 
 
 #[derive(Debug)]
+
 pub enum Color{
+
     Black,
     White,
 }
@@ -103,6 +104,7 @@ pub fn convert_square_to_relative(square: [char; 2]) -> (u8, u8){
     (vertical, 8 - number as u8)
 }
 
+
 fn convert_to_text_notation(square: u8) -> String{
     let square_x = (square % 8);
     let square_y = (square / 8);
@@ -131,7 +133,6 @@ fn get_relative_coords(square: (i8, i8), x: i8, y: i8) -> Option<u8>{
         Some((y*7 + x) as u8)
     }
 }
-
 
 
 impl BoardState{
@@ -260,7 +261,9 @@ impl BoardState{
         false
     }
 
+
     pub fn validate_move(&mut self, player_move: Move, player_color: Color) -> MoveResult{
+
         let mut result = MoveResult::Invalid;
         let handle_move = || -> MoveResult{
             result = MoveResult::Invalid;           
@@ -552,6 +555,7 @@ impl BoardState{
         Ok(())
     }
 
+
     pub fn export_to_fen(&self) -> String{
         let mut board_str = std::string::String::new();
         for row in &self.chunks(){
@@ -606,6 +610,7 @@ impl BoardState{
         return board_str
     } 
     
+
 }
 
 /*
@@ -617,6 +622,8 @@ println!("Board: {}\nTurn: {:?}\n Castling rights: {:?}\nEn passant: {:?}\nHalfm
               board_state.halfmove_clock,
               board_state.fullmoves);
 */
+
+
 
 
 #[test]
@@ -759,6 +766,7 @@ fn test_check_if_square_under_attack(){
     assert_eq!(temp1, false);
     let temp1 = board_state.check_if_square_under_attack(convert_square_to_u8(['h', '7']), Color::Black);
     assert_eq!(temp1, true);
+
 }
 
 #[test]
@@ -767,4 +775,5 @@ fn test_convert_to_text_notation(){
     assert_eq!(convert_to_text_notation(63), "h1");
     assert_eq!(convert_to_text_notation(36), "e4");
 }
+
 
