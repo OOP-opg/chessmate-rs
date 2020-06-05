@@ -151,7 +151,7 @@ impl Lobby {
     /// * `ticket` - ticket to be set
     /// # Returns
     /// * `None` - on success, if no pair was found
-    /// * `Some((GameId, ))` - on success, if pair was found and game was formed
+    /// * `Some((GameId, Users))` - on success, if pair was found and game was formed
     /// * `SetTicketError` - see enum definition for details
     pub fn set_ticket(
         &mut self,
