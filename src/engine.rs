@@ -15,6 +15,7 @@ const PAWN_W: [(i8, i8); 2] = [(-1, -1),(1, -1)];
 
 
 #[derive(Debug)]
+#[derive(Clone)]
 #[derive(PartialEq)]
 pub enum Color{
 
@@ -23,6 +24,7 @@ pub enum Color{
 }
 
 // TODO rewrite to bitfield
+#[derive(Clone)]
 #[derive(Debug)]
 struct CastlingRights{
     K: bool,
@@ -51,6 +53,7 @@ pub enum MoveResult{
     BlackWin
 }
 
+#[derive(Clone)]
 pub struct BoardState {
     board: [u8; 64],
     turn: Color,
