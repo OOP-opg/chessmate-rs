@@ -16,7 +16,7 @@ const PAWN_W: [(i8, i8); 2] = [(-1, -1),(1, -1)];
 
 
 #[derive(Debug)]
-enum Color{
+pub enum Color{
     Black,
     White,
 }
@@ -260,7 +260,7 @@ impl BoardState{
         false
     }
 
-    fn validate_move(&mut self, player_move: Move, player_color: Color) -> MoveResult{
+    pub fn validate_move(&mut self, player_move: Move, player_color: Color) -> MoveResult{
         let mut result = MoveResult::Invalid;
         let handle_move = || -> MoveResult{
             result = MoveResult::Invalid;           
@@ -552,7 +552,7 @@ impl BoardState{
         Ok(())
     }
 
-    fn export_to_fen(&self) -> String{
+    pub fn export_to_fen(&self) -> String{
         let mut board_str = std::string::String::new();
         for row in &self.chunks(){
             let mut i = 0;
