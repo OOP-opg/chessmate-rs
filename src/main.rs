@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use actix_files as fs;
 use actix_web::{
     web,
@@ -17,8 +15,8 @@ use server::handlers::{new_game, index};
 use server::pairing::{pairing_loop, Paired};
 
 use crate::game::Color;
-use crate::game::Move;
-use crate::gamepool::{GameId, GameUsers};
+//use crate::game::Move;
+use crate::gamepool::GameId;
 use crate::gamepool::UserId;
 
 type Id = u32;

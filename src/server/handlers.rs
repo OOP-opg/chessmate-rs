@@ -8,6 +8,9 @@ use actix_web::{
 };
 use crossbeam_channel::{select, Receiver, Sender};
 
+//use crate::game::Move;
+use crate::server::pairing::Paired;
+use crate::gamepool::{GameId, UserId};
 use crate::game::Color;
 
 #[derive(Debug)]
@@ -26,9 +29,6 @@ impl FromStr for Color {
         }
     }
 }
-use crate::game::Move;
-use crate::server::pairing::Paired;
-use crate::gamepool::{GameId, UserId};
 
 #[get("/api/action/{gameid}/{userid}/{action}/{move_from}/{move_to}/{castling}")]
 pub async fn action(
