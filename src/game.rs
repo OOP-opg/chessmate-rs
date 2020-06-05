@@ -1,22 +1,49 @@
-pub type UserAction = String;
+
+use crate::engine;
 pub type Replay = String;
 pub type UserGameState = String;
+use crate::engine::Color;
+use crate::engine::Move;
+use crate::engine::MoveType;
+use crate::gamepool::UserId;
+
+pub enum UserActionType{
+    Move,
+    OfferDraw
+}
+pub struct UserAction{
+    user: UserId,
+    action_type: UserActionType,
+    game_move: Option<Move>,
+    draw_from: Option<UserId>,
+}
+
+
+
 
 pub struct Game {
-    state: String,
+    board_state: engine::BoardState,
+    user1: UserId,
+    user2: UserId,
+
 }
 
 pub enum DoActionError {
     WrongTurn,
     InvalidAction,
+
+    InvalidUser,
+
 }
 
 impl Game {
     /// Provides user-format representation of game state
     /// # Returns
     /// * `UserGameState`
-    pub fn get_state(&self) -> &UserGameState {
-        &self.state
+
+    pub fn get_state(&self) -> UserGameState {
+        self.board_state.export_to_fen()
+
     }
 
     /// Performs game action
@@ -27,29 +54,42 @@ impl Game {
     /// * `false` - action is correct and doesn't end the game
     /// * `DoActionError` - action is incorrect see enum description for details
     pub fn do_action(&self, action: UserAction) -> Result<bool, DoActionError> {
-        print!("Action happened: {}", action);
+
+        match action.action_type{
+        UserActionType::Move => {
+            if action.user != self.user1 && action.user != self.user2 {return Err(DoActionError::InvalidUser)};
+            let mut cur_color: Color = if action.user == self.user1{
+                Color::White
+            }else{
+                Color::Black
+            };
+            self.board_state.validate_move(action.game_move.unwrap(), cur_color);
+        },
+        UserActionType::OfferDraw => {
+            return Ok(false)
+        }
+        }
         Ok(false)
     }
 
-    pub fn new() -> Game {
+    pub fn new(user1: UserId, user2: UserId) -> Game {
         Game {
-            state: "".to_owned(),
+            board_state: engine::BoardState::new(),
+            user1: user1,
+            user2: user2
         }
     }
 }
 
 pub struct Ticket {
-    pub side: String,
+    side: Color,
 }
 
 impl Ticket {
-    pub fn new(/*TODO: add any parameters*/) -> Ticket{
+    pub fn new(side: Color) -> Ticket{
         Ticket {
-            side: "".to_string(),
+            side: side,
         }
     }
 }
 
-pub struct Engine {}
-
-impl Engine { }

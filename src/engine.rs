@@ -1,3 +1,4 @@
+
 const START_POS: [u8; 64] = [114, 110, 98, 113, 107, 98, 110, 114, 
                                    112, 112, 112, 112, 112, 112, 112, 112, 
                                    46, 46, 46, 46, 46, 46, 46, 46, 
@@ -14,7 +15,9 @@ const PAWN_W: [(i8, i8); 2] = [(-1, -1),(1, -1)];
 
 
 #[derive(Debug)]
-enum Color{
+
+pub enum Color{
+
     Black,
     White,
 }
@@ -101,6 +104,25 @@ pub fn convert_square_to_relative(square: [char; 2]) -> (u8, u8){
     (vertical, 8 - number as u8)
 }
 
+
+fn convert_to_text_notation(square: u8) -> String{
+    let square_x = (square % 8);
+    let square_y = (square / 8);
+    let letter = match square_x{
+        0 => 'a',
+        1 => 'b',
+        2 => 'c',
+        3 => 'd',
+        4 => 'e',
+        5 => 'f',
+        6 => 'g',
+        7 => 'h',
+        _ => panic!("Panic in covnvert_to_text_notation: square number out of range")
+    };
+    return format!("{}{}", letter, 8 - square_y)
+}
+
+
 fn get_relative_coords(square: (i8, i8), x: i8, y: i8) -> Option<u8>{
     let square_x: i8 = square.0;
     let square_y: i8 = square.1;
@@ -123,6 +145,17 @@ impl BoardState{
             halfmove_clock: 0,
             fullmoves: 1
         }
+    }
+
+    fn chunks(&self) -> Vec<Vec<u8>>{
+        let mut result: Vec<Vec<u8>> = std::vec::Vec::with_capacity(8);
+        for i in 0..8{
+            result[i] = std::vec::Vec::with_capacity(8);
+            for j in 0..8{
+                result[i][j] = self.board[i*8 + j];
+            }
+        }
+        result
     }
 
     //get square biased by x, y relatively to given square
@@ -228,7 +261,9 @@ impl BoardState{
         false
     }
 
-    fn validate_move(&mut self, player_move: Move, player_color: Color) -> MoveResult{
+
+    pub fn validate_move(&mut self, player_move: Move, player_color: Color) -> MoveResult{
+
         let mut result = MoveResult::Invalid;
         let handle_move = || -> MoveResult{
             result = MoveResult::Invalid;           
@@ -519,6 +554,63 @@ impl BoardState{
         self.fullmoves = fen_parts[5].parse::<u32>().unwrap();
         Ok(())
     }
+
+
+    pub fn export_to_fen(&self) -> String{
+        let mut board_str = std::string::String::new();
+        for row in &self.chunks(){
+            let mut i = 0;
+            while i <= 7 {
+                let mut counter = 0;
+                while row[i] == b'.' && i <= 7 {
+                    counter += 1;
+                    i += 1
+                }
+                if counter > 0{
+                    board_str.push_str(&*counter.to_string());
+                }
+                else{
+                    board_str.push(row[i] as char);
+                }
+            }
+            board_str.push('/');
+        }
+
+        board_str.push(' ');
+
+        let color = match self.turn{
+            Color::Black => 'b',
+            Color::White => 'w',
+        };
+        board_str.push(color);
+
+        board_str.push(' ');
+
+        let mut any_castling = true;
+        if self.castling_rights.K {board_str.push('K'); any_castling = false;}
+        if self.castling_rights.k {board_str.push('k'); any_castling = false;}
+        if self.castling_rights.Q {board_str.push('Q'); any_castling = false;}
+        if self.castling_rights.q {board_str.push('q'); any_castling = false;}
+        if any_castling {board_str.push('-');}
+
+        board_str.push(' ');
+
+        match self.en_passant{
+            Some(x) => board_str.push_str(&*convert_to_text_notation(x)),
+            None => board_str.push('-'),
+        }
+
+        board_str.push(' ');
+
+        board_str.push_str(&*self.halfmove_clock.to_string());
+
+        board_str.push(' ');
+
+        board_str.push_str(&*self.fullmoves.to_string());
+        return board_str
+    } 
+    
+
 }
 
 /*
@@ -530,6 +622,9 @@ println!("Board: {}\nTurn: {:?}\n Castling rights: {:?}\nEn passant: {:?}\nHalfm
               board_state.halfmove_clock,
               board_state.fullmoves);
 */
+
+
+
 
 #[test]
     fn test_convert_square_to_u8() {
@@ -671,4 +766,14 @@ fn test_check_if_square_under_attack(){
     assert_eq!(temp1, false);
     let temp1 = board_state.check_if_square_under_attack(convert_square_to_u8(['h', '7']), Color::Black);
     assert_eq!(temp1, true);
+
 }
+
+#[test]
+fn test_convert_to_text_notation(){
+    assert_eq!(convert_to_text_notation(0), "a8");
+    assert_eq!(convert_to_text_notation(63), "h1");
+    assert_eq!(convert_to_text_notation(36), "e4");
+}
+
+
