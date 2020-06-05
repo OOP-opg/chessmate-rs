@@ -70,28 +70,28 @@ impl GamePool {
         game_id: GameId,
         user_id: UserId,
         action: game::UserAction,
-    ) -> Result<Option<&GameInfo>, DoGameActionError> {
-        let game_info_wrapped = self.games.get(&game_id);
-        if game_info_wrapped.is_none(){
-            return Err(DoGameActionError::BadGame);
-        };
-        let game_info = game_info_wrapped.unwrap();
-        if game_info.users.contains(&user_id) {
-            match game_info.game.do_action(action) {
-                Ok(true) => {
-                    //game_info.users.iter().map(|new_user_id| {self.playing_users.remove(new_user_id)});
-                    //self.games.remove(&game_id);
-                    Ok(Some(game_info))
+    ) -> Result<Option<GameUsers>, DoGameActionError> {
+        match *self.games.get(&game_id) {
+            Some(game_info) => {
+                if game_info.users.contains(&user_id) {
+                    match game_info.game.do_action(action) {
+                        Ok(true) => {
+                            //game_info.users.iter().map(|new_user_id| {self.playing_users.remove(new_user_id)});
+                            //self.games.remove(&game_id);
+                            Ok(Some(game_info.users))
+                        }
+                        Ok(false) => Ok(None),
+                        Err(err) => Err(DoGameActionError::BadAction(err)),
+                    }
+                } else {
+                    if self.playing_users.contains_key(&user_id) {
+                        Err(DoGameActionError::BadUser)
+                    } else {
+                        Err(DoGameActionError::NotPlaying)
+                    }
                 }
-                Ok(false) => Ok(None),
-                Err(err) => Err(DoGameActionError::BadAction(err)),
             }
-        } else {
-            if self.playing_users.contains_key(&user_id) {
-                Err(DoGameActionError::BadUser)
-            } else {
-                Err(DoGameActionError::NotPlaying)
-            }
+            None => Err(DoGameActionError::BadGame),
         }
     }
 
