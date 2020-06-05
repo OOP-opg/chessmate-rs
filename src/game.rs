@@ -78,7 +78,7 @@ impl Game {
 }
 
 pub struct Ticket {
-    side: Color,
+    pub side: Color,
 }
 
 impl Ticket {

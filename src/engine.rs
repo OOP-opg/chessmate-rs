@@ -15,7 +15,7 @@ const PAWN_W: [(i8, i8); 2] = [(-1, -1),(1, -1)];
 
 
 #[derive(Debug)]
-
+#[derive(PartialEq)]
 pub enum Color{
 
     Black,
@@ -106,8 +106,8 @@ pub fn convert_square_to_relative(square: [char; 2]) -> (u8, u8){
 
 
 fn convert_to_text_notation(square: u8) -> String{
-    let square_x = (square % 8);
-    let square_y = (square / 8);
+    let square_x = square % 8;
+    let square_y = square / 8;
     let letter = match square_x{
         0 => 'a',
         1 => 'b',
