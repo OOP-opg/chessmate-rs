@@ -1,5 +1,3 @@
-use crate::engine;
-
 pub type UserAction = String;
 pub type Replay = String;
 pub type UserGameState = String;
@@ -41,13 +39,13 @@ impl Game {
 }
 
 pub struct Ticket {
-    side: String,
+    pub side: String,
 }
 
 impl Ticket {
     pub fn new(/*TODO: add any parameters*/) -> Ticket{
         Ticket {
-            
+            side: "".to_string(),
         }
     }
 }
