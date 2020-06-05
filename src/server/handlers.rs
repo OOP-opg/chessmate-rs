@@ -33,8 +33,7 @@ impl FromStr for Color {
 #[get("/api/action/{gameid}/{userid}/{action}/{move_from}/{move_to}/{castling}")]
 pub async fn action(
     info: web::Path::<(GameId, UserId, String, String, String, String, String)>
-    ) -> impl Responder {
-    format!("Ok")
+) -> impl Responder {
 }
 
 #[get("/api/new_game/{choice}/{id}")]
