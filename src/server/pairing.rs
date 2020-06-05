@@ -15,7 +15,7 @@ pub struct Paired {
 pub fn pairing_loop(event_reciever: Receiver<(Color, UserId)>, pairing_sender: Sender<Paired>) {
     std::thread::spawn(move || {
         let gamepool = GamePool::new();
-        let lobby = Lobby::new(gamepool);
+        let mut lobby = Lobby::new(gamepool);
 
         loop {
             select! {

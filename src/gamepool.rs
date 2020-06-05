@@ -36,17 +36,17 @@ impl GamePool {
     /// # Returns
     /// * `Some(GameId, GameInfo, UserGameState)` - game user is currently playing in, if any
     /// * `None` - if user is not currently playing in any game
-    pub fn check_is_playing(
-        &self,
-        user_id: UserId,
-
-    ) -> Option<(&GameId, &GameUsers, &game::UserGameState)> {
-        self.playing_users.get(&user_id).and_then(|game_id| {
-            self.games
-                .get(&game_id)
-                .and_then(|game| Some((game_id, &game.users, &game.game.get_state())))
-        })
-    }
+    //pub fn check_is_playing(
+        //&self,
+        //user_id: UserId,
+//
+    //) -> Option<(&GameId, &GameUsers, &game::UserGameState)> {
+        //self.playing_users.get(&user_id).and_then(|game_id| {
+            //self.games
+                //.get(&game_id)
+                //.and_then(|game| Some((game_id, &game.users, &game.game.get_state())))
+        //})
+    //}
 
 
     /// Provides statistic of games currently played by users
