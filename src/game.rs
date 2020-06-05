@@ -5,7 +5,7 @@ pub type Replay = String;
 pub type UserGameState = String;
 
 pub struct Game {
-    state: String,
+    board_state: engine::B
 }
 
 pub enum DoActionError {
