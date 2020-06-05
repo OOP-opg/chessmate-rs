@@ -4,7 +4,6 @@ pub type Replay = String;
 pub type UserGameState = String;
 use crate::engine::Color;
 use crate::engine::Move;
-use crate::engine::MoveType;
 use crate::gamepool::UserId;
 
 pub enum UserActionType{
@@ -82,7 +81,7 @@ impl Game {
 }
 
 pub struct Ticket {
-    side: Color,
+    pub side: Color,
 }
 
 impl Ticket {

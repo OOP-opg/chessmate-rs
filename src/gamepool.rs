@@ -7,10 +7,7 @@ pub type GameId = i32;
 pub type GameUsers = [UserId; 2];
 
 pub struct GameInfo {
-
-
     game: game::Game,
-
     pub users: GameUsers,
 }
 
@@ -29,7 +26,6 @@ pub enum DoGameActionError {
     NotPlaying,
     BadGame,
     BadUser,
-
     BadAction(game::DoActionError),
 }
 
@@ -45,11 +41,10 @@ impl GamePool {
         user_id: UserId,
 
     ) -> Option<(&GameId, &GameUsers, &game::UserGameState)> {
-
         self.playing_users.get(&user_id).and_then(|game_id| {
             self.games
                 .get(&game_id)
-                .and_then(|game| Some((game_id, &game.users, game.game.get_state())))
+                .and_then(|game| Some((game_id, &game.users, &game.game.get_state())))
         })
     }
 
@@ -103,7 +98,7 @@ impl GamePool {
     pub fn start_game(&mut self, users: [UserId; 2]) -> (GameId, GameUsers) {
         self.last_game_id += 1;
         let game_info = GameInfo {
-            game: game::Game::new(),
+            game: game::Game::new(users[0], users[1]),
             users: users.clone(),
         };
         self.games.insert(self.last_game_id, game_info);
@@ -163,17 +158,6 @@ impl Lobby {
     pub fn set_ticket(
         &mut self,
         &user_id: &UserId,
-        ticket: engine::Ticket,
-    ) -> Result<(), SetTicketError> {
-        if self.playing_users.contains_key(&user_id) {
-            Err(SetTicketError::AlreadyPlaying)
-        } else if self.tickets.len() >= GamePool::MAX_LOBBY_SIZE {
-            Err(SetTicketError::TooMany)
-        } else {
-            // TODO: implement ticket checking
-            self.tickets.insert(user_id, ticket);
-            Ok(())
-
         ticket: game::Ticket,
     ) -> Result<Option<(GameId, GameUsers)>, SetTicketError> {
         if self.game_pool.playing_users.contains_key(&user_id) {
