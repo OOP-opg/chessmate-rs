@@ -791,7 +791,7 @@ impl std::fmt::Display for BoardState{
         Ok(())
     }
 }
-
+/*
 use std::process::Command;
 use std::io::{self, Read};
 fn main(){
@@ -818,7 +818,7 @@ fn main(){
                                                     board.get(to));
     }
 }
-
+*/
 #[test]
     fn test_convert_str_to_u8() {
         let temp = convert_str_to_u8("a8").ok().unwrap();
