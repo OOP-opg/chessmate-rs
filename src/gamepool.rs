@@ -72,10 +72,10 @@ impl GamePool {
         user_id: UserId,
         action: game::UserAction,
     ) -> Result<Option<GameUsers>, DoGameActionError> {
-        match self.games.get(&game_id) {
+        match self.games.get_mut(&game_id) {
             Some(game_info) => {
                 if game_info.users.contains(&user_id) {
-                    match (game_info.clone()).game.do_action(action) {
+                    match game_info.game.do_action(action) {
                         Ok(true) => {
                             //game_info.users.iter().map(|new_user_id| {self.playing_users.remove(new_user_id)});
                             //self.games.remove(&game_id);
