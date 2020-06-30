@@ -6,7 +6,6 @@ pub type UserId = i32;
 pub type GameId = i32;
 pub type GameUsers = [UserId; 2];
 
-#[derive(Clone)]
 pub struct GameInfo {
     game: game::Game,
     pub users: GameUsers,
