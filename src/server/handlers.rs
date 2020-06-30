@@ -3,7 +3,7 @@ use actix_files::NamedFile;
 use actix_web::{
     get,
     web,
-   // HttpResponse,
+    HttpResponse,
     Responder,
 };
 use crossbeam_channel::{select, Receiver, Sender};
@@ -33,7 +33,8 @@ impl FromStr for Color {
 #[get("/api/action/{gameid}/{userid}/{action}/{move_from}/{move_to}/{castling}")]
 pub async fn action(
     info: web::Path::<(GameId, UserId, String, String, String, String, String)>
-) -> impl Responder {
+) -> HttpResponse {
+    panic!()
 }
 
 #[get("/api/new_game/{choice}/{id}")]
