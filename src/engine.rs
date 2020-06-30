@@ -21,7 +21,7 @@ const KNIGHT: [RelMov; 8] = [RelMov(-1, 2), RelMov(2, 1),
                              RelMov(1, -2), RelMov(-2, -1)];
 
 #[derive(Debug)]
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 #[derive(PartialEq)]
 pub enum Color{
     Black,
@@ -34,12 +34,6 @@ impl std::ops::Not for Color{
             White => Black,
             Black => White,
         }
-    }
-}
-impl Copy for Color { }
-impl Clone for Color{
-    fn clone(&self) -> Color{
-        *self
     }
 }
 
