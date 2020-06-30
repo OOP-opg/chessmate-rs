@@ -1,10 +1,8 @@
-
 use crate::engine;
 pub type Replay = String;
 pub type UserGameState = String;
-use crate::engine::Color;
-use crate::engine::Move;
-use crate::engine::MoveType;
+pub use crate::engine::Color;
+pub use crate::engine::Move;
 use crate::gamepool::UserId;
 
 pub enum UserActionType{
@@ -18,9 +16,7 @@ pub struct UserAction{
     draw_from: Option<UserId>,
 }
 
-
-
-
+#[derive(Clone)]
 pub struct Game {
     board_state: engine::BoardState,
     user1: UserId,
@@ -53,7 +49,7 @@ impl Game {
     /// * `true` - action is correct and ends the game
     /// * `false` - action is correct and doesn't end the game
     /// * `DoActionError` - action is incorrect see enum description for details
-    pub fn do_action(&self, action: UserAction) -> Result<bool, DoActionError> {
+    pub fn do_action(&mut self, action: UserAction) -> Result<bool, DoActionError> {
 
         match action.action_type{
         UserActionType::Move => {
@@ -82,7 +78,7 @@ impl Game {
 }
 
 pub struct Ticket {
-    side: Color,
+    pub side: Color,
 }
 
 impl Ticket {

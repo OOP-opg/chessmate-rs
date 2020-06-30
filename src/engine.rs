@@ -20,8 +20,9 @@ const KNIGHT: [RelMov; 8] = [RelMov(-1, 2), RelMov(2, 1),
                              RelMov(1, 2), RelMov(-2, 1), 
                              RelMov(1, -2), RelMov(-2, -1)];
 
-
 #[derive(Debug)]
+#[derive(Clone)]
+#[derive(PartialEq)]
 pub enum Color{
     Black,
     White,
@@ -42,7 +43,9 @@ impl Clone for Color{
     }
 }
 
+
 //TODO replace with something smarter
+// TODO rewrite to bitfield
 #[derive(Debug)]
 struct CastlingRights{
     wk: bool,
@@ -149,10 +152,11 @@ enum ConvertSquareToStrError{
     IncorrectVerticalInput,
 }
 
-//Converts coords like (3, 5) (Coords (0, 0) is a8 ) to string like "d3"
+
 fn convert_to_text_notation(square: Square) -> Result<String, ConvertSquareToStrError>{
     let square_x = square.0;
     let square_y = square.1;
+
     let letter = match square_x{
         0 => 'a',
         1 => 'b',

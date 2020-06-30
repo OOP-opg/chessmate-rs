@@ -19,7 +19,7 @@ const find_pair = () => {
     let result_placeholder = document.getElementById("result");
     fetch(`/api/new_game/${choice}/${login_id}`)
         .then(response => {
-            console.log(response.json)
+            console.log(response.json())
         })
         .then(data => {
             result_placeholder.textContent = data

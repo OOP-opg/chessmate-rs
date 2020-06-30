@@ -1,4 +1,4 @@
-use crate::game;
+use crate::game::{self, Ticket};
 
 use std::collections::HashMap;
 
@@ -6,11 +6,9 @@ pub type UserId = i32;
 pub type GameId = i32;
 pub type GameUsers = [UserId; 2];
 
+#[derive(Clone)]
 pub struct GameInfo {
-
-
     game: game::Game,
-
     pub users: GameUsers,
 }
 
@@ -29,7 +27,6 @@ pub enum DoGameActionError {
     NotPlaying,
     BadGame,
     BadUser,
-
     BadAction(game::DoActionError),
 }
 
@@ -40,18 +37,17 @@ impl GamePool {
     /// # Returns
     /// * `Some(GameId, GameInfo, UserGameState)` - game user is currently playing in, if any
     /// * `None` - if user is not currently playing in any game
-    pub fn check_is_playing(
-        &self,
-        user_id: UserId,
-
-    ) -> Option<(&GameId, &GameUsers, &game::UserGameState)> {
-
-        self.playing_users.get(&user_id).and_then(|game_id| {
-            self.games
-                .get(&game_id)
-                .and_then(|game| Some((game_id, &game.users, game.game.get_state())))
-        })
-    }
+    //pub fn check_is_playing(
+        //&self,
+        //user_id: UserId,
+//
+    //) -> Option<(&GameId, &GameUsers, &game::UserGameState)> {
+        //self.playing_users.get(&user_id).and_then(|game_id| {
+            //self.games
+                //.get(&game_id)
+                //.and_then(|game| Some((game_id, &game.users, &game.game.get_state())))
+        //})
+    //}
 
 
     /// Provides statistic of games currently played by users
@@ -75,35 +71,35 @@ impl GamePool {
         game_id: GameId,
         user_id: UserId,
         action: game::UserAction,
-    ) -> Result<Option<&GameInfo>, DoGameActionError> {
-        let game_info_wrapped = self.games.get(&game_id);
-        if game_info_wrapped.is_none(){
-            return Err(DoGameActionError::BadGame);
-        };
-        let game_info = game_info_wrapped.unwrap();
-        if game_info.users.contains(&user_id) {
-            match game_info.game.do_action(action) {
-                Ok(true) => {
-                    //game_info.users.iter().map(|new_user_id| {self.playing_users.remove(new_user_id)});
-                    //self.games.remove(&game_id);
-                    Ok(Some(game_info))
+    ) -> Result<Option<GameUsers>, DoGameActionError> {
+        match self.games.get_mut(&game_id) {
+            Some(game_info) => {
+                if game_info.users.contains(&user_id) {
+                    match game_info.game.do_action(action) {
+                        Ok(true) => {
+                            //game_info.users.iter().map(|new_user_id| {self.playing_users.remove(new_user_id)});
+                            //self.games.remove(&game_id);
+                            Ok(Some(game_info.users))
+                        }
+                        Ok(false) => Ok(None),
+                        Err(err) => Err(DoGameActionError::BadAction(err)),
+                    }
+                } else {
+                    if self.playing_users.contains_key(&user_id) {
+                        Err(DoGameActionError::BadUser)
+                    } else {
+                        Err(DoGameActionError::NotPlaying)
+                    }
                 }
-                Ok(false) => Ok(None),
-                Err(err) => Err(DoGameActionError::BadAction(err)),
             }
-        } else {
-            if self.playing_users.contains_key(&user_id) {
-                Err(DoGameActionError::BadUser)
-            } else {
-                Err(DoGameActionError::NotPlaying)
-            }
+            None => Err(DoGameActionError::BadGame),
         }
     }
 
     pub fn start_game(&mut self, users: [UserId; 2]) -> (GameId, GameUsers) {
         self.last_game_id += 1;
         let game_info = GameInfo {
-            game: game::Game::new(),
+            game: game::Game::new(users[0], users[1]),
             users: users.clone(),
         };
         self.games.insert(self.last_game_id, game_info);
@@ -127,6 +123,7 @@ pub struct Lobby {
 /// Enum of errors that might occur when trying to add a ticket
 /// * `TooMany` - will occur when limit of tickets in lobby is achieved
 /// * `AlreadyPlaying` - will occur if specified user is already playing
+#[derive(Debug)]
 pub enum SetTicketError {
     AlreadyPlaying,
     TooMany,
@@ -162,19 +159,8 @@ impl Lobby {
     /// * `SetTicketError` - see enum definition for details
     pub fn set_ticket(
         &mut self,
-        &user_id: &UserId,
-        ticket: engine::Ticket,
-    ) -> Result<(), SetTicketError> {
-        if self.playing_users.contains_key(&user_id) {
-            Err(SetTicketError::AlreadyPlaying)
-        } else if self.tickets.len() >= GamePool::MAX_LOBBY_SIZE {
-            Err(SetTicketError::TooMany)
-        } else {
-            // TODO: implement ticket checking
-            self.tickets.insert(user_id, ticket);
-            Ok(())
-
-        ticket: game::Ticket,
+        user_id: UserId,
+        ticket: Ticket,
     ) -> Result<Option<(GameId, GameUsers)>, SetTicketError> {
         if self.game_pool.playing_users.contains_key(&user_id) {
             Err(SetTicketError::AlreadyPlaying)
