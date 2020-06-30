@@ -16,7 +16,6 @@ pub struct UserAction{
     draw_from: Option<UserId>,
 }
 
-#[derive(Clone)]
 pub struct Game {
     board_state: engine::BoardState,
     user1: UserId,
