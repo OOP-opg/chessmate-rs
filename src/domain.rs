@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::marker::Unpin;
 use std::str::FromStr;
 
 use crate::core::{GameId, UserId};
@@ -20,11 +21,12 @@ pub enum SetTicketError {
     DuplicateTicket,
 }
 
-pub trait AbstractLobby<W, O>
+pub trait AbstractLobby<W, O>: Unpin + 'static
 where
     W: Wish,
     O: PairObserver,
 {
+    fn new() -> Self;
     fn add_ticket(
         &mut self,
         user: UserId,
@@ -33,7 +35,10 @@ where
     ) -> Result<(), SetTicketError>;
 }
 
-pub trait PairObserver {
+pub trait AbstractGamePool<G> {
+}
+
+pub trait PairObserver: Unpin + 'static {
     fn notify(&self, game: GameId);
 }
 
