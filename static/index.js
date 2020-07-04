@@ -1,31 +1,6 @@
 let choice = null
 let login_id = null
 
-const chose_black = () => {
-    let placeholder = document.getElementById("choice_placeholder");
-    choice = "black";
-    placeholder.textContent = choice;
-    console.log(choice);
-}
-
-const chose_white = () => {
-    let placeholder = document.getElementById("choice_placeholder");
-    choice = "white";
-    placeholder.textContent = choice;
-    console.log(choice);
-}
-
-const find_pair = () => {
-    let result_placeholder = document.getElementById("result");
-    fetch(`/api/new_game/${choice}/${login_id}`)
-        .then(response => {
-            console.log(response.json())
-        })
-        .then(data => {
-            result_placeholder.textContent = data
-        })
-}
-
 const login = () => {
     let login_text = document.getElementById("login_input");
     let login_placeholder = document.getElementById("id_placeholder");
@@ -33,7 +8,33 @@ const login = () => {
     login_id = login_text.value;
     login_placeholder.textContent = login_id;
 }
-    
+
+const chose_black = () => {
+    let placeholder = document.getElementById("choice_placeholder");
+    choice = "white";
+    placeholder.textContent = choice;
+    console.log(choice);
+}
+
+const chose_white = () => {
+    let placeholder = document.getElementById("choice_placeholder");
+    choice = "black";
+    placeholder.textContent = choice;
+    console.log(choice);
+}
+
+const find_pair = () => {
+    let result_placeholder = document.getElementById("result");
+    const socket = new WebSocket(`ws://localhost:8000/api/chess/new_game/${login_id}/${choice}`)
+    socket.addEventListener('open', _event => {
+        socket.send("/find");
+    })
+    socket.addEventListener('message', (msg) => {
+        console.log("Message from server: ", msg.data);
+        result_placeholder.textContent = msg.data;
+    })
+}
+
 
 const main = () => {
     document.getElementById("white")
