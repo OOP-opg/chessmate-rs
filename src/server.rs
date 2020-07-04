@@ -4,13 +4,16 @@ use actix_files::NamedFile;
 use actix_web::middleware::Logger;
 use actix_web::{get, web, App, HttpServer, Responder};
 
-use crate::handlers::new_game;
+use crate::handlers::new_session;
 use crate::runtime::GameServer;
 
 use crate::chess::{ChessGame, ChessWish};
 
+use crate::lobby::Lobby;
+use crate::observers::TicketObserver;
+
 pub async fn run_server(
-    listener: Addr<GameServer<ChessWish>>,
+    listener: Addr<GameServer<ChessWish, Lobby<ChessWish>>>,
 ) -> std::io::Result<()> {
     env_logger::init();
 
@@ -22,8 +25,8 @@ pub async fn run_server(
             .app_data(game_listener.clone())
             .service(index)
             .service(
-                web::resource("/api/chess/new_game/{user_id}/{wish}")
-                    .to(new_game::<ChessGame>),
+                web::resource("/api/chess/new_session/{user_id}")
+                    .to(new_session::<ChessGame>),
             )
             .service(fs::Files::new("/static", "./static"))
     })

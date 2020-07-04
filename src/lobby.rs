@@ -10,18 +10,20 @@ pub struct Lobby<W: Wish> {
 }
 
 impl<W: Wish> Lobby<W> {
-    pub fn new() -> Lobby<W> {
-        Lobby {
-            tickets: HashMap::new(),
-            game_counter: GameId::new(),
-        }
-    }
+
 }
 
 impl<W> AbstractLobby<W, TicketObserver> for Lobby<W>
 where
     W: Wish,
 {
+    fn new() -> Lobby<W> {
+        Lobby {
+            tickets: HashMap::new(),
+            game_counter: GameId::new(),
+        }
+    }
+
     fn add_ticket(
         &mut self,
         user: UserId,

@@ -11,23 +11,24 @@ const login = () => {
 
 const chose_black = () => {
     let placeholder = document.getElementById("choice_placeholder");
-    choice = "white";
+    choice = "black";
     placeholder.textContent = choice;
     console.log(choice);
 }
 
 const chose_white = () => {
     let placeholder = document.getElementById("choice_placeholder");
-    choice = "black";
+    choice = "white";
     placeholder.textContent = choice;
     console.log(choice);
 }
 
 const find_pair = () => {
     let result_placeholder = document.getElementById("result");
-    const socket = new WebSocket(`ws://localhost:8000/api/chess/new_game/${login_id}/${choice}`)
+    const socket = new WebSocket(`ws://localhost:8000/api/chess/new_session/${login_id}`)
     socket.addEventListener('open', _event => {
-        socket.send("/find");
+        console.log(_event);
+        socket.send(`/find?${choice}`);
     })
     socket.addEventListener('message', (msg) => {
         console.log("Message from server: ", msg.data);
