@@ -11,14 +11,14 @@ const login = () => {
 
 const chose_black = () => {
     let placeholder = document.getElementById("choice_placeholder");
-    choice = "white";
+    choice = "black";
     placeholder.textContent = choice;
     console.log(choice);
 }
 
 const chose_white = () => {
     let placeholder = document.getElementById("choice_placeholder");
-    choice = "black";
+    choice = "white";
     placeholder.textContent = choice;
     console.log(choice);
 }
