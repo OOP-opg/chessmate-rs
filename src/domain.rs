@@ -13,8 +13,13 @@ pub trait Id {
     fn inc(&mut self);
 }
 
+pub trait GamePool {
+    //TODO: gamepool interface
+}
+
 pub trait Game {
     type Wish: Wish;
+    //TODO: game interface
 }
 
 pub enum SetTicketError {
