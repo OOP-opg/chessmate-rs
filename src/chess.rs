@@ -14,15 +14,6 @@ impl Game for ChessGame {
     type Wish = ChessWish;
 }
 
-impl Id for u64 {
-    fn new() -> u64 {
-        0
-    }
-    fn inc(&mut self) {
-        *self += 1;
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Color {
     Black,

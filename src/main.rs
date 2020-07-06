@@ -5,6 +5,7 @@ mod lobby;
 mod observers;
 mod runtime;
 mod server;
+mod tic_tac_toe;
 mod chess;
 
 use actix::Actor;

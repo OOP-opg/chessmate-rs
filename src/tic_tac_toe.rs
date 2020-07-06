@@ -1,28 +1,27 @@
-use crate::domain::{Game, Id, Wish};
+use crate::domain::{Game, Wish};
 use std::ops::Not;
 use std::str::FromStr;
 
-pub struct TttGame;
+#[derive(Clone, Copy)]
+enum Pane {
+    X,
+    O,
+    Empty,
+}
 
-// impl TttGame {
-// fn new() -> TttGame {
-// TttGame {}
-// }
-// }
+pub struct TttGame {
+    state: [Pane; 9] 
+}
+
+impl TttGame {
+    const fn new() -> TttGame {
+        TttGame { state: [Pane::Empty; 9] }
+    }
+}
 
 impl Game for TttGame {
     type Wish = TttWish;
 }
-
-impl Id for u64 {
-    fn new() -> u64 {
-        0
-    }
-    fn inc(&mut self) {
-        *self += 1;
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TttSign {
     Xs,

@@ -30,6 +30,7 @@ pub async fn run_server(
             )
             .service(fs::Files::new("/static", "./static"))
     })
+    .workers(1 as usize)
     .bind("127.0.0.1:8000")?
     .run()
     .await

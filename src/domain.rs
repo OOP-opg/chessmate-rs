@@ -23,6 +23,7 @@ pub enum SetTicketError {
 
 pub trait AbstractLobby<W, O>: Unpin + 'static
 where
+    I: Info,
     W: Wish,
     O: PairObserver,
 {
@@ -30,6 +31,7 @@ where
     fn add_ticket(
         &mut self,
         user: UserId,
+        info: I,
         wish: W,
         observer: O,
     ) -> Result<(), SetTicketError>;
