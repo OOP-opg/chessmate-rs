@@ -13,13 +13,28 @@ pub trait Id {
     fn inc(&mut self);
 }
 
-pub trait GamePool {
-    //TODO: gamepool interface
+pub trait GamePool<G: Game> {
+    type Observers;
+    fn new_game(&mut self, game_id: GameId, game: G, oberservers: Observer);
+    fn handle_game_action(&mut self, game_id: GameId, action: Action, user_id: UserId);
 }
 
+pub trait Action: FromStr {
+}
+
+pub enum HandleActionError {
+    WrongTurn,
+    InvalidAction,
+    InvalidUser,
+}
+
+    
 pub trait Game {
     type Wish: Wish;
-    //TODO: game interface
+    type Action: Action;
+    type Users;
+    fn new(users: Users);
+    fn handle_action(&mut self, action: Action, user_id: UserId) -> Result<(), HandleActionError>;
 }
 
 pub enum SetTicketError {
