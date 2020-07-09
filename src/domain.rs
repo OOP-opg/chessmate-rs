@@ -15,8 +15,8 @@ pub trait Id {
 
 pub trait GamePool<G: Game> {
     type Observers;
-    fn new_game(&mut self, game_id: GameId, game: G, oberservers: Observers);
-    fn handle_game_action(&mut self, game_id: GameId, action: Action, user_id: UserId);
+    fn new_game(&mut self, game_id: GameId, game: G, oberservers: Self::Observers);
+    fn handle_game_action(&mut self, game_id: GameId, action: G::Action, user_id: UserId);
 }
 
 pub trait Action: FromStr {
@@ -33,15 +33,14 @@ pub trait Game {
     type Wish: Wish;
     type Action: Action;
     type Users;
-    fn new(users: Users);
-    fn handle_action(&mut self, action: Action, user_id: UserId) -> Result<(), HandleActionError>;
+    fn new(users: Self::Users);
+    fn handle_action(&mut self, action: Self::Action, user_id: UserId) -> Result<(), HandleActionError>;
 }
 
 
-pub trait AbstractLobby<T, O>: Unpin + 'static
+pub trait Lobby<T, O>: Unpin + 'static
 where
-    T: Ticket,
-    O: PairObserver,
+    O: GameObserver,
 {
     fn new() -> Self;
     fn add_ticket(
@@ -54,10 +53,6 @@ where
 pub trait AbstractGamePool<G> {
 }
 
-pub trait PairObserver: Unpin + 'static {
+pub trait GameObserver: Unpin + 'static {
     fn notify(&self, game: GameId);
-}
-
-pub trait PairReactor {
-    fn wait(&self) -> Option<GameId>;
 }

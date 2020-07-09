@@ -8,12 +8,13 @@ use crate::handlers::new_session;
 use crate::runtime::GameServer;
 
 use crate::chess::{ChessGame, ChessWish};
+use crate::tic_tac_toe::{TttGame, TttWish};
 
 use crate::lobby::Lobby;
 use crate::observers::TicketObserver;
 
 pub async fn run_server(
-    listener: Addr<GameServer<ChessWish, Lobby<ChessWish>>>,
+    listener: Addr<GameServer<TttWish, Lobby<TttWish>>>,
 ) -> std::io::Result<()> {
     env_logger::init();
 

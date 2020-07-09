@@ -10,12 +10,12 @@ mod chess;
 
 use actix::Actor;
 use lobby::Lobby;
-use chess::ChessWish;
+use tic_tac_toe::TttWish;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
-    let game_server = runtime::GameServer::<ChessWish, Lobby<ChessWish>>::default().start();
+    let game_server = runtime::GameServer::<TttWish, Lobby<TttWish>>::default().start();
 
     server::run_server(game_server).await
 }
