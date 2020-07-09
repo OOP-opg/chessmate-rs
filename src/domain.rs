@@ -13,26 +13,42 @@ pub trait Id {
     fn inc(&mut self);
 }
 
+pub trait GamePool<G: Game> {
+    type Observers;
+    fn new_game(&mut self, game_id: GameId, game: G, oberservers: Observers);
+    fn handle_game_action(&mut self, game_id: GameId, action: Action, user_id: UserId);
+}
+
+pub trait Action: FromStr {
+}
+
+pub enum HandleActionError {
+    WrongTurn,
+    InvalidAction,
+    InvalidUser,
+}
+
+    
 pub trait Game {
     type Wish: Wish;
+    type Action: Action;
+    type Users;
+    fn new(users: Users);
+    fn handle_action(&mut self, action: Action, user_id: UserId) -> Result<(), HandleActionError>;
 }
 
-pub enum SetTicketError {
-    DuplicateTicket,
-}
 
-pub trait AbstractLobby<W, O>: Unpin + 'static
+pub trait AbstractLobby<T, O>: Unpin + 'static
 where
+    T: Ticket,
     O: PairObserver,
-    W: Wish
 {
     fn new() -> Self;
     fn add_ticket(
         &mut self,
-        user: UserId,
-        wish: W,
+        ticket: T,
         observer: O,
-    ) -> Result<(), SetTicketError>;
+    );
 }
 
 pub trait AbstractGamePool<G> {
