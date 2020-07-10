@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 
 use actix::prelude::StreamHandler;
 use actix::{Actor, Addr, AsyncContext, Handler};
-use actix_web::{web, HttpRequest, HttpResponse, ResponseError};
+use actix_web::{web, HttpRequest, HttpResponse, ResponseError, Error};
 use actix_web_actors::ws;
 
 use crate::core::UserId;
@@ -82,6 +82,7 @@ impl<W: Wish> StreamHandler<Result<ws::Message, ws::ProtocolError>>
 #[derive(Debug)]
 pub enum ReqError {
     InvalidWish,
+    WebSocketError(Error),
 }
 
 impl Display for ReqError {
@@ -92,20 +93,23 @@ impl Display for ReqError {
 
 impl ResponseError for ReqError {}
 
-pub async fn new_session<G: Game>(
+pub async fn new_session<G, L, GP>(
     req: HttpRequest,
     stream: web::Payload,
     info: web::Path<UserId>,
-    server: web::Data<Addr<GameServer<G::Wish, Lobby<G::Wish>>>>,
-) -> Result<HttpResponse, ReqError> {
-    log::info!("request: {:?}", info);
+    lobby: web::Data<Addr<L>>,
+    game_pool: web::Data<Addr<GP>>,
+) -> Result<HttpResponse, ReqError> 
+where G: Game {
+    log::info!("Request: {:?}", info);
 
     let user_id = info.into_inner();
     //TODO: fuck this error handling, aaaah
     let session = WsPlayerSession {
-        server: server.get_ref().clone(),
+        lobby: lobby.get_ref().clone(),
+        game_pool: game_pool.get_ref().clone(),
         user_id,
         wish: PhantomData,
     };
-    ws::start(session, &req, stream).map_err(|_| ReqError::InvalidWish)
+    ws::start(session, &req, stream).or_else(|e| ReqError::WebSocketError(e))
 }

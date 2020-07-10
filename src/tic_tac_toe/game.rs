@@ -1,4 +1,4 @@
-use crate::domain::{Game, Wish};
+use crate::common::domain::Wish;
 use std::ops::Not;
 use std::str::FromStr;
 
@@ -9,19 +9,16 @@ enum Pane {
     Empty,
 }
 
-pub struct TttGame {
+pub struct TttGameState {
     state: [Pane; 9] 
 }
 
-impl TttGame {
-    const fn new() -> TttGame {
-        TttGame { state: [Pane::Empty; 9] }
-    }
+impl TttGameState {
+    //const fn new() -> TttGame {
+        //TttGame { state: [Pane::Empty; 9] }
+    //}
 }
 
-impl Game for TttGame {
-    type Wish = TttWish;
-}
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TttSign {
     Xs,
@@ -30,7 +27,7 @@ pub enum TttSign {
 
 #[derive(Debug, Copy, Clone)]
 pub struct TttWish {
-    sign: TttSign,
+    pub sign: TttSign,
 }
 
 impl Not for TttSign {
@@ -49,9 +46,6 @@ pub enum TttWishErr {
 }
 
 impl Wish for TttWish {
-    fn is_match(&self, other: &TttWish) -> bool {
-        self.sign != other.sign
-    }
 }
 
 impl FromStr for TttWish {
