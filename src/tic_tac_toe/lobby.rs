@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 
-use actix::Recipient;
-use crate::common::messages::NewGame;
 use crate::common::core::{GameId, UserId};
-use crate::common::domain::{Lobby, Id};
+use crate::common::domain::{Lobby, Id, GameObserver};
 
 use super::game::{TttWish};
+use super::communication::TttGameObserver;
 
 
 struct TttInfo {
@@ -18,7 +17,7 @@ struct Ticket {
 }
 
 pub struct TttLobby {
-    tickets: HashMap<UserId, (Ticket, Recipient<NewGame>)>,
+    tickets: HashMap<UserId, (Ticket, TttGameObserver)>,
     game_counter: GameId,
 }
 
@@ -31,14 +30,14 @@ impl Default for TttLobby {
     }
 }
 
-impl Lobby<TttWish> for TttLobby {
+impl Lobby<TttWish, TttGameObserver> for TttLobby {
     fn add_ticket(
         &mut self,
-        user: UserId,
+        new_user: UserId,
         new_wish: TttWish,
-        new_observer: Recipient<NewGame>,
+        new_observer: TttGameObserver,
     ) {
-        log::debug!("Got wish {:?} from {:?}", new_wish, user);
+        log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
 
         let new_ticket = Ticket {
             wish: new_wish,
@@ -46,20 +45,20 @@ impl Lobby<TttWish> for TttLobby {
         };
 
         let mut paired = false;
-        if self.tickets.contains_key(&user) {
-            self.tickets.insert(user, (new_ticket, new_observer));
-        }
         let mut paired_user = None;
 
         for ticket in &self.tickets {
             let (Ticket {wish, info: _ }, observer) = ticket.1;
-            let user_id = ticket.0;
+            let user_id = *ticket.0;
 
+            if new_user == user_id {
+                continue;
+            }
             if new_wish.sign != wish.sign {
                 paired_user.replace(user_id);
-                log::info!("Find pair for {} and {}", user_id, user);
-                observer.do_send(NewGame(self.game_counter));
-                new_observer.do_send(NewGame(self.game_counter));
+                log::info!("Find pair for {} and {}", user_id, new_user);
+                observer.notify(self.game_counter);
+                new_observer.notify(self.game_counter);
                 self.game_counter.inc();
                 paired = true;
                 break;
@@ -68,7 +67,7 @@ impl Lobby<TttWish> for TttLobby {
         if paired {
             let _ = self.tickets.remove(&paired_user.unwrap());
         } else {
-            let _ = self.tickets.insert(user, (new_ticket, new_observer));
+            let _ = self.tickets.insert(new_user, (new_ticket, new_observer));
         }
     }
 }

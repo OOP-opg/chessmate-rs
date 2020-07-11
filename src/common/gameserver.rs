@@ -22,7 +22,7 @@ impl<G: Game> Actor for GameServer<G> {
 impl<G: Game> Handler<FindPair<G::Wish>> for GameServer<G> {
     type Result = ();
     fn handle(&mut self, msg: FindPair<G::Wish>, _: &mut Context<Self>) {
-        let observer = msg.addr;
+        let observer = msg.addr.into();
         self.lobby.add_ticket(msg.user_id, msg.wish, observer);
     }
 }

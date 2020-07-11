@@ -9,23 +9,23 @@ const login = () => {
     login_placeholder.textContent = login_id;
 }
 
-const chose_black = () => {
+const chose_xs = () => {
     let placeholder = document.getElementById("choice_placeholder");
-    choice = "black";
+    choice = "Xs";
     placeholder.textContent = choice;
     console.log(choice);
 }
 
-const chose_white = () => {
+const chose_os = () => {
     let placeholder = document.getElementById("choice_placeholder");
-    choice = "white";
+    choice = "Os";
     placeholder.textContent = choice;
     console.log(choice);
 }
 
 const find_pair = () => {
     let result_placeholder = document.getElementById("result");
-    const socket = new WebSocket(`ws://localhost:8000/api/chess/new_session/${login_id}`)
+    const socket = new WebSocket(`ws://localhost:5000/api/tic_tac_toe/new_session/${login_id}`)
     socket.addEventListener('open', _event => {
         console.log(_event);
         socket.send(`/find?${choice}`);
@@ -38,10 +38,10 @@ const find_pair = () => {
 
 
 const main = () => {
-    document.getElementById("white")
-        .addEventListener("click", chose_white);
-    document.getElementById("black")
-        .addEventListener("click", chose_black)
+    document.getElementById("Xs")
+        .addEventListener("click", chose_xs);
+    document.getElementById("Os")
+        .addEventListener("click", chose_os)
     document.getElementById("find")
         .addEventListener("click", find_pair)
     document.getElementById("login")

@@ -24,7 +24,7 @@ pub async fn run_server<G: Game>(
             )
     })
     .workers(1 as usize)
-    .bind("127.0.0.1:8000")?
+    .bind("127.0.0.1:5000")?
     .run()
     .await
 }
