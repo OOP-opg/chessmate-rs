@@ -9,15 +9,15 @@ pub trait Id {
     fn inc(&mut self);
 }
 
-pub trait Game: Unpin + 'static {
-    type Lobby: Lobby<Self::Wish, Self::GameObserver> + Unpin + 'static;
+pub trait Game<O: GameObserver>: Unpin + 'static {
+    type Lobby: Lobby<Self::Wish, O> + Unpin + 'static;
     type Wish: Wish + Send + 'static;
-    type GameObserver: GameObserver;
+    // type GameObserver: GameObserver; FIXME: make generic
     //type GamePool;
     //type Action;
 }
 
-pub trait GameObserver: From<Recipient<NewGame>> {
+pub trait GameObserver: Unpin + 'static {
     fn notify(&self, game_id: GameId);
 }
 

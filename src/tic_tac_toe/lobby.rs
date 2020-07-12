@@ -4,7 +4,6 @@ use crate::common::core::{GameId, UserId};
 use crate::common::domain::{Lobby, Id, GameObserver};
 
 use super::game::{TttWish};
-use super::communication::TttGameObserver;
 
 
 struct TttInfo {
@@ -16,12 +15,12 @@ struct Ticket {
     info: TttInfo,
 }
 
-pub struct TttLobby {
-    tickets: HashMap<UserId, (Ticket, TttGameObserver)>,
+pub struct TttLobby<O: GameObserver> {
+    tickets: HashMap<UserId, (Ticket, O)>,
     game_counter: GameId,
 }
 
-impl Default for TttLobby {
+impl<O: GameObserver> Default for TttLobby<O> {
     fn default() -> Self {
         TttLobby {
             tickets: HashMap::new(),
@@ -30,12 +29,12 @@ impl Default for TttLobby {
     }
 }
 
-impl Lobby<TttWish, TttGameObserver> for TttLobby {
+impl<O: GameObserver> Lobby<TttWish, O> for TttLobby<O> {
     fn add_ticket(
         &mut self,
         new_user: UserId,
         new_wish: TttWish,
-        new_observer: TttGameObserver,
+        new_observer: O,
     ) {
         log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
 

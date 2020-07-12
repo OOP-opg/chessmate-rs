@@ -7,20 +7,21 @@ use actix_web::web::{Payload, Path, Data};
 use actix_web_actors::ws;
 
 use super::core::UserId;
+use super::communication::ActorGameObserver;
 use super::domain::Game;
 use super::gameserver::GameServer;
 use super::messages::{NewGame, FindPair};
 
-struct WsPlayerSession<G: Game> {
+struct WsPlayerSession<G: Game<ActorGameObserver>> {
     server: Addr<GameServer<G>>,
     user_id: UserId,
 }
 
-impl<G: Game> Actor for WsPlayerSession<G> {
+impl<G: Game<ActorGameObserver>> Actor for WsPlayerSession<G> {
     type Context = ws::WebsocketContext<Self>;
 }
 
-impl<G: Game> Handler<NewGame> for WsPlayerSession<G> {
+impl<G: Game<ActorGameObserver>> Handler<NewGame> for WsPlayerSession<G> {
     type Result = ();
 
     fn handle(&mut self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
@@ -29,7 +30,7 @@ impl<G: Game> Handler<NewGame> for WsPlayerSession<G> {
     }
 }
 
-impl<G: Game> WsPlayerSession<G> {
+impl<G: Game<ActorGameObserver>> WsPlayerSession<G> {
     fn find_pair(&self, wish: &str, ctx: &mut ws::WebsocketContext<Self>) {
         if let Ok(wish) = wish.parse() {
             let pair_request = FindPair {
@@ -43,7 +44,7 @@ impl<G: Game> WsPlayerSession<G> {
 }
 
 
-impl<G: Game> StreamHandler<Result<ws::Message, ws::ProtocolError>>
+impl<G: Game<ActorGameObserver>> StreamHandler<Result<ws::Message, ws::ProtocolError>>
     for WsPlayerSession<G>
 {
     fn handle(
@@ -87,7 +88,7 @@ impl Display for ReqError {
 
 impl ResponseError for ReqError {}
 
-pub async fn new_session<G: Game>(
+pub async fn new_session<G: Game<ActorGameObserver>>(
     req: HttpRequest,
     stream: Payload,
     info: Path<UserId>,

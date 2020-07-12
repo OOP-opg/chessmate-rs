@@ -4,9 +4,10 @@ use actix::Actor;
 
 use super::domain::Game;
 use super::gameserver::GameServer;
+use super::communication::ActorGameObserver;
 use super::handlers::new_session;
 
-pub async fn run_server<G: Game>(
+pub async fn run_server<G: Game<ActorGameObserver>>(
     game_name: &'static str,
 ) -> std::io::Result<()> {
     env_logger::init();
