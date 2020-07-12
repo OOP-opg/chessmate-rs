@@ -1,6 +1,4 @@
 use super::core::{UserId, GameId};
-use actix::Recipient;
-use super::messages::NewGame;
 
 use std::str::FromStr;
 
@@ -9,12 +7,13 @@ pub trait Id {
     fn inc(&mut self);
 }
 
-pub trait Game<O: GameObserver>: Unpin + 'static {
-    type Lobby: Lobby<Self::Wish, O> + Unpin + 'static;
+pub trait Game<O: Observers>: Unpin + 'static {
+    type Lobby: Lobby<Self::Wish, O::GameObserver> + Unpin + 'static;
     type Wish: Wish + Send + 'static;
-    // type GameObserver: GameObserver; FIXME: make generic
-    //type GamePool;
-    //type Action;
+}
+
+pub trait Observers {
+    type GameObserver: GameObserver;
 }
 
 pub trait GameObserver: Unpin + 'static {
