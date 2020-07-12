@@ -1,8 +1,8 @@
 use std::ops::Not;
 use std::str::FromStr;
 
-use crate::common::domain::{Users, GameCore, Wish};
 use crate::common::core::UserId;
+use crate::common::domain::{GameCore, Users, Wish};
 
 pub struct TttCore;
 
@@ -47,8 +47,7 @@ pub enum TttWishErr {
     InvalidWish,
 }
 
-impl Wish for TttWish {
-}
+impl Wish for TttWish {}
 
 impl FromStr for TttWish {
     type Err = TttWishErr;

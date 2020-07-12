@@ -1,8 +1,8 @@
-use std::marker::PhantomData;
-use actix::Recipient;
-use super::domain::{Users, Observers, GameObserver, GameCore, StartGameObserver};
 use super::core::GameId;
+use super::domain::{GameCore, GameObserver, Observers, StartGameObserver, Users};
 use super::messages::{NewGame, StartGame};
+use actix::Recipient;
+use std::marker::PhantomData;
 
 pub struct ActorObservers<GC: GameCore> {
     core: PhantomData<GC>,
@@ -10,7 +10,7 @@ pub struct ActorObservers<GC: GameCore> {
 
 impl<GC: GameCore> Observers<GC> for ActorObservers<GC> {
     type GameObserver = ActorGameObserver;
-    type StartGameObserver =  ActorStartGameObserver<GC::Users>;
+    type StartGameObserver = ActorStartGameObserver<GC::Users>;
 }
 
 pub struct ActorGameObserver(Recipient<NewGame>);

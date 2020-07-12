@@ -1,4 +1,4 @@
-use super::core::{UserId, GameId};
+use super::core::{GameId, UserId};
 
 use std::str::FromStr;
 
@@ -34,21 +34,11 @@ pub trait GameObserver: Unpin + 'static {
 pub trait Wish: FromStr {}
 
 pub trait Lobby<C: GameCore, O: Observers<C>>: Default {
-    fn add_ticket(
-        &mut self,
-        user_id: UserId,
-        wish: C::Wish,
-        observer: O::GameObserver,
-    );
+    fn add_ticket(&mut self, user_id: UserId, wish: C::Wish, observer: O::GameObserver);
 }
 
 pub trait Action: FromStr {}
 
 pub trait GamePool<A: Action>: Default {
-    fn do_game_action(
-        &mut self,
-        game_id: GameId,
-        user_id: UserId,
-        action: A,
-    );
+    fn do_game_action(&mut self, game_id: GameId, user_id: UserId, action: A);
 }

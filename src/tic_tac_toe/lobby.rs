@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
+use super::core::TttCore;
 use crate::common::core::{GameId, UserId};
-use super::core::{TttCore, TttUsers};
-use crate::common::domain::{GameCore, Lobby, Id, Observers, GameObserver};
+use crate::common::domain::{GameCore, GameObserver, Id, Lobby, Observers};
 
-use crate::common::communication::{ActorGameObserver, ActorStartGameObserver, ActorObservers};
+use crate::common::communication::{ActorGameObserver, ActorObservers};
 
-use super::core::{TttWish};
-
+use super::core::TttWish;
 
 struct TttInfo {
     rating: u64,
@@ -29,12 +28,11 @@ impl Observers<TttCore> for TttActorObservers {
 
 //TODO: make generic
 pub struct TttLobby /* <O: Observers<TttCore>> */ {
-    tickets: HashMap<UserId, (Ticket, ActorGameObserver  /*O::GameObserver*/)>,
+    tickets: HashMap<UserId, (Ticket, ActorGameObserver /*O::GameObserver*/)>,
     game_counter: GameId,
 }
 
-
-impl /* <O: Observers<TttCore>> */ Default for TttLobby /*<O>*/ {
+impl Default for TttLobby /*<O>*/ {
     fn default() -> Self {
         TttLobby {
             tickets: HashMap::new(),
@@ -43,13 +41,8 @@ impl /* <O: Observers<TttCore>> */ Default for TttLobby /*<O>*/ {
     }
 }
 
-impl /*<O: Observers<TttCore>>*/ Lobby<TttCore, ActorObservers<TttCore>> for TttLobby /*<O>*/ {
-    fn add_ticket(
-        &mut self,
-        new_user: UserId,
-        new_wish: TttWish,
-        new_observer: ActorGameObserver,
-    ) {
+impl Lobby<TttCore, ActorObservers<TttCore>> for TttLobby /*<O>*/ {
+    fn add_ticket(&mut self, new_user: UserId, new_wish: TttWish, new_observer: ActorGameObserver) {
         log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
 
         let new_ticket = Ticket {
@@ -61,7 +54,7 @@ impl /*<O: Observers<TttCore>>*/ Lobby<TttCore, ActorObservers<TttCore>> for Ttt
         let mut paired_user = None;
 
         for ticket in &self.tickets {
-            let (Ticket {wish, info: _ }, observer) = ticket.1;
+            let (Ticket { wish, info: _ }, observer) = ticket.1;
             let user_id = *ticket.0;
 
             if new_user == user_id {
@@ -76,7 +69,7 @@ impl /*<O: Observers<TttCore>>*/ Lobby<TttCore, ActorObservers<TttCore>> for Ttt
                 paired = true;
                 break;
             }
-        };
+        }
         if paired {
             let _ = self.tickets.remove(&paired_user.unwrap());
         } else {

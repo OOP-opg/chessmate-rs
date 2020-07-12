@@ -1,15 +1,12 @@
-use crate::common::domain::{GameLogic, GameObserver};
 use crate::common::communication::ActorObservers;
-use std::marker::PhantomData;
+use crate::common::domain::GameLogic;
+
 use super::core::TttCore;
-use super::lobby::{TttLobby, TttActorObservers};
+use super::lobby::TttLobby;
 
+pub struct TttGameLogic /* <O: GameObserver> */ {/* observer: PhantomData<O>, */}
 
-pub struct TttGameLogic /* <O: GameObserver> */ {
-    /* observer: PhantomData<O>, */
-}
-
-impl /* <O: GameObserver> */ GameLogic<TttCore, ActorObservers<TttCore>> for TttGameLogic {
+impl GameLogic<TttCore, ActorObservers<TttCore>> for TttGameLogic {
     type Lobby = TttLobby;
     //type GameObserver = TttGameObserver;
 }

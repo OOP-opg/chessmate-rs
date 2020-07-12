@@ -11,4 +11,3 @@ impl Id for u64 {
         *self += 1;
     }
 }
-

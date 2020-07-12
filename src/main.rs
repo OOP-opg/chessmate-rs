@@ -1,9 +1,8 @@
-mod tic_tac_toe;
 mod common;
+mod tic_tac_toe;
 
-use tic_tac_toe::logic::TttGameLogic;
 use tic_tac_toe::core::TttCore;
-use common::communication::ActorGameObserver;
+use tic_tac_toe::logic::TttGameLogic;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

@@ -1,6 +1,6 @@
-use actix::{Message, Recipient};
 use super::core::{GameId, UserId};
-use super::domain::{Wish, Users};
+use super::domain::{Users, Wish};
+use actix::{Message, Recipient};
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -8,7 +8,6 @@ use super::domain::{Wish, Users};
  * Message returned from Lobby to Session actor, to notify about new game
  */
 pub struct NewGame(pub GameId);
-
 
 #[derive(Message)]
 #[rtype(result = "()")]
