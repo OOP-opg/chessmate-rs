@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
 use crate::common::core::{GameId, UserId};
-use crate::common::domain::{Lobby, Id, GameObserver};
+use super::core::{TttCore, TttUsers};
+use crate::common::domain::{GameCore, Lobby, Id, Observers, GameObserver};
 
-use super::game::{TttWish};
+use crate::common::communication::{ActorGameObserver, ActorStartGameObserver, ActorObservers};
+
+use super::core::{TttWish};
 
 
 struct TttInfo {
@@ -15,12 +18,23 @@ struct Ticket {
     info: TttInfo,
 }
 
-pub struct TttLobby<O: GameObserver> {
-    tickets: HashMap<UserId, (Ticket, O)>,
+pub struct TttActorObservers;
+
+/*
+impl Observers<TttCore> for TttActorObservers {
+    type GameObserver = ActorGameObserver;
+    type StartGameObserver =  ActorStartGameObserver<TttUsers>;
+}
+*/
+
+//TODO: make generic
+pub struct TttLobby /* <O: Observers<TttCore>> */ {
+    tickets: HashMap<UserId, (Ticket, ActorGameObserver  /*O::GameObserver*/)>,
     game_counter: GameId,
 }
 
-impl<O: GameObserver> Default for TttLobby<O> {
+
+impl /* <O: Observers<TttCore>> */ Default for TttLobby /*<O>*/ {
     fn default() -> Self {
         TttLobby {
             tickets: HashMap::new(),
@@ -29,12 +43,12 @@ impl<O: GameObserver> Default for TttLobby<O> {
     }
 }
 
-impl<O: GameObserver> Lobby<TttWish, O> for TttLobby<O> {
+impl /*<O: Observers<TttCore>>*/ Lobby<TttCore, ActorObservers<TttCore>> for TttLobby /*<O>*/ {
     fn add_ticket(
         &mut self,
         new_user: UserId,
         new_wish: TttWish,
-        new_observer: O,
+        new_observer: ActorGameObserver,
     ) {
         log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
 

@@ -1,6 +1,6 @@
 use actix::{Message, Recipient};
 use super::core::{GameId, UserId};
-use super::domain::Wish;
+use super::domain::{Wish, Users};
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -19,4 +19,14 @@ pub struct FindPair<W: Wish> {
     pub user_id: UserId,
     pub wish: W,
     pub addr: Recipient<NewGame>,
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+/*
+ * Message from Lobby to GameServer actor, for starting new game
+ */
+pub struct StartGame<US: Users> {
+    pub users: US,
+    pub game_id: GameId,
 }

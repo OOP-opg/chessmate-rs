@@ -1,10 +1,12 @@
 mod tic_tac_toe;
 mod common;
 
-use tic_tac_toe::logic::TttGame;
+use tic_tac_toe::logic::TttGameLogic;
+use tic_tac_toe::core::TttCore;
 use common::communication::ActorGameObserver;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-   common::server::run_server::<TttGame<ActorGameObserver>>("tic_tac_toe").await
+    common::server::run_server::<TttCore, TttGameLogic>("tic_tac_toe").await
+    //Ok(())
 }

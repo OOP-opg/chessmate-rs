@@ -7,21 +7,27 @@ use actix_web::web::{Payload, Path, Data};
 use actix_web_actors::ws;
 
 use super::core::UserId;
-use super::communication::ActorGameObserver;
-use super::domain::Game;
+use super::communication::ActorObservers;
+use super::domain::{GameLogic, GameCore};
 use super::gameserver::GameServer;
 use super::messages::{NewGame, FindPair};
 
-struct WsPlayerSession<G: Game<ActorGameObserver>> {
-    server: Addr<GameServer<G>>,
+struct WsPlayerSession<GC, GL>
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
+    server: Addr<GameServer<GC, GL>>,
     user_id: UserId,
 }
 
-impl<G: Game<ActorGameObserver>> Actor for WsPlayerSession<G> {
+impl<GC, GL> Actor for WsPlayerSession<GC, GL> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     type Context = ws::WebsocketContext<Self>;
 }
 
-impl<G: Game<ActorGameObserver>> Handler<NewGame> for WsPlayerSession<G> {
+impl<GC, GL> Handler<NewGame> for WsPlayerSession<GC, GL> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     type Result = ();
 
     fn handle(&mut self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
@@ -30,7 +36,9 @@ impl<G: Game<ActorGameObserver>> Handler<NewGame> for WsPlayerSession<G> {
     }
 }
 
-impl<G: Game<ActorGameObserver>> WsPlayerSession<G> {
+impl<GC, GL> WsPlayerSession<GC, GL> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     fn find_pair(&self, wish: &str, ctx: &mut ws::WebsocketContext<Self>) {
         if let Ok(wish) = wish.parse() {
             let pair_request = FindPair {
@@ -44,9 +52,10 @@ impl<G: Game<ActorGameObserver>> WsPlayerSession<G> {
 }
 
 
-impl<G: Game<ActorGameObserver>> StreamHandler<Result<ws::Message, ws::ProtocolError>>
-    for WsPlayerSession<G>
-{
+impl<GC, GL> StreamHandler<Result<ws::Message, ws::ProtocolError>>
+    for WsPlayerSession<GC, GL>
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     fn handle(
         &mut self,
         msg: Result<ws::Message, ws::ProtocolError>,
@@ -88,16 +97,18 @@ impl Display for ReqError {
 
 impl ResponseError for ReqError {}
 
-pub async fn new_session<G: Game<ActorGameObserver>>(
+pub async fn new_session<GC, GL>(
     req: HttpRequest,
     stream: Payload,
     info: Path<UserId>,
-    server: Data<Addr<GameServer<G>>>,
-) -> Result<HttpResponse, ReqError> {
+    server: Data<Addr<GameServer<GC, GL>>>,
+) -> Result<HttpResponse, ReqError> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     log::info!("Request: {:?}", info);
 
     let user_id = info.into_inner();
-    let session = WsPlayerSession::<G> {
+    let session = WsPlayerSession::<GC, GL> {
         server: server.get_ref().clone(),
         user_id,
     };

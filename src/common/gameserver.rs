@@ -1,28 +1,36 @@
-use super::domain::{Game, Lobby};
-use super::communication::ActorGameObserver;
+use super::domain::{GameLogic, GameCore, Lobby};
+use super::communication::ActorObservers;
 use super::messages::FindPair;
 
 use actix::{Actor, Handler, Context};
 
-pub struct GameServer<G: Game<ActorGameObserver>> {
-    lobby: G::Lobby,
+pub struct GameServer<GC, GL>
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>>{
+    lobby: GL::Lobby,
 }
 
-impl<G: Game<ActorGameObserver>> Default for  GameServer<G> {
+impl<GC, GL> Default for  GameServer<GC, GL> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>>{
     fn default() -> Self {
         GameServer {
-            lobby: G::Lobby::default(),
+            lobby: GL::Lobby::default(),
         }
     }
 }
 
-impl<G: Game<ActorGameObserver>> Actor for GameServer<G> {
+impl<GC, GL> Actor for GameServer<GC, GL> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     type Context = Context<Self>;
 }
 
-impl<G: Game<ActorGameObserver>> Handler<FindPair<G::Wish>> for GameServer<G> {
+impl<GC, GL> Handler<FindPair<GC::Wish>> for GameServer<GC, GL> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>> {
     type Result = ();
-    fn handle(&mut self, msg: FindPair<G::Wish>, _: &mut Context<Self>) {
+    fn handle(&mut self, msg: FindPair<GC::Wish>, _: &mut Context<Self>) {
         let observer = msg.addr.into();
         self.lobby.add_ticket(msg.user_id, msg.wish, observer);
     }

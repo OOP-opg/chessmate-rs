@@ -7,14 +7,25 @@ pub trait Id {
     fn inc(&mut self);
 }
 
-pub trait Game<O: Observers>: Unpin + 'static {
-    type Lobby: Lobby<Self::Wish, O::GameObserver> + Unpin + 'static;
+pub trait GameCore: 'static {
     type Wish: Wish + Send + 'static;
+    type Users: Users;
 }
 
-pub trait Observers {
-    type GameObserver: GameObserver;
+pub trait GameLogic<C: GameCore, O: Observers<C>>: Unpin + 'static {
+    type Lobby: Lobby<C, O> + Unpin + 'static;
 }
+
+pub trait Observers<C: GameCore> {
+    type GameObserver: GameObserver;
+    type StartGameObserver: StartGameObserver<C::Users>;
+}
+
+pub trait StartGameObserver<US: Users> {
+    fn start_game(&self, game_id: GameId, users: US);
+}
+
+pub trait Users: Send {}
 
 pub trait GameObserver: Unpin + 'static {
     fn notify(&self, game_id: GameId);
@@ -22,12 +33,12 @@ pub trait GameObserver: Unpin + 'static {
 
 pub trait Wish: FromStr {}
 
-pub trait Lobby<W: Wish, O: GameObserver>: Default {
+pub trait Lobby<C: GameCore, O: Observers<C>>: Default {
     fn add_ticket(
         &mut self,
         user_id: UserId,
-        wish: W,
-        observer: O,
+        wish: C::Wish,
+        observer: O::GameObserver,
     );
 }
 

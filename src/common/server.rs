@@ -2,17 +2,19 @@ use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use actix::Actor;
 
-use super::domain::Game;
+use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::communication::ActorGameObserver;
+use super::communication::ActorObservers;
 use super::handlers::new_session;
 
-pub async fn run_server<G: Game<ActorGameObserver>>(
+pub async fn run_server<GC, GL>(
     game_name: &'static str,
-) -> std::io::Result<()> {
+) -> std::io::Result<()> 
+where GC: GameCore,
+      GL: GameLogic<GC, ActorObservers<GC>>{
     env_logger::init();
 
-    let game_server = GameServer::<G>::default().start();
+    let game_server = GameServer::<GC, GL>::default().start();
     log::info!("starting server");
     let session_route = format!("/api/{game}/new_session/{{user_id}}", game=game_name); 
     HttpServer::new(move || {
@@ -21,7 +23,7 @@ pub async fn run_server<G: Game<ActorGameObserver>>(
             .wrap(Logger::default())
             .service(
                 web::resource(&session_route)
-                    .to(new_session::<G>),
+                    .to(new_session::<GC, GL>),
             )
     })
     .workers(1 as usize)
