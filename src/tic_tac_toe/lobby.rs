@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use super::core::TttCore;
+use super::core::{TttCore, TttUsers};
 use crate::common::core::{GameId, UserId};
-use crate::common::domain::{GameCore, GameObserver, Id, Lobby, Observers};
+use crate::common::domain::{GameCore, StartGameObserver, GameObserver, Id, Lobby, Observers};
 
 use crate::common::communication::{ActorGameObserver, ActorObservers};
 
@@ -17,7 +17,9 @@ struct Ticket {
     info: TttInfo,
 }
 
+/*
 pub struct TttActorObservers;
+*/
 
 /*
 impl Observers<TttCore> for TttActorObservers {
@@ -27,12 +29,16 @@ impl Observers<TttCore> for TttActorObservers {
 */
 
 //TODO: make generic
-pub struct TttLobby /* <O: Observers<TttCore>> */ {
-    tickets: HashMap<UserId, (Ticket, ActorGameObserver /*O::GameObserver*/)>,
+pub struct TttLobby /**/ <O: Observers<TttCore>> /* */ 
+    where O::StartGameObserver: StartGameObserver<TttUsers> {
+    communication: O::StartGameObserver,
+    tickets: HashMap<UserId, (Ticket, /*ActorGameObserver*/ O::GameObserver)>,
     game_counter: GameId,
 }
 
-impl Default for TttLobby /*<O>*/ {
+/*
+impl<O: Observers<TttCore>> Default for TttLobby<O> 
+    where O::StartGameObserver: StartGameObserver<TttUsers> {
     fn default() -> Self {
         TttLobby {
             tickets: HashMap::new(),
@@ -40,9 +46,24 @@ impl Default for TttLobby /*<O>*/ {
         }
     }
 }
+*/
 
-impl Lobby<TttCore, ActorObservers<TttCore>> for TttLobby /*<O>*/ {
-    fn add_ticket(&mut self, new_user: UserId, new_wish: TttWish, new_observer: ActorGameObserver) {
+
+impl<O: Observers<TttCore>> Lobby<TttCore, O> for TttLobby<O> /*<O>*/ 
+    where O::StartGameObserver: StartGameObserver<TttUsers> {
+    fn with_communication(communication: O::StartGameObserver) -> Self {
+        TttLobby {
+            communication,
+            tickets: HashMap::new(),
+            game_counter: GameId::new(),
+        }
+    }
+    fn add_ticket(
+        &mut self,
+        new_user: UserId,
+        new_wish: TttWish,
+        new_observer: O::GameObserver,
+        /*ActorGameObserver*/) {
         log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
 
         let new_ticket = Ticket {
@@ -63,8 +84,12 @@ impl Lobby<TttCore, ActorObservers<TttCore>> for TttLobby /*<O>*/ {
             if new_wish.sign != wish.sign {
                 paired_user.replace(user_id);
                 log::info!("Find pair for {} and {}", user_id, new_user);
+
                 observer.notify(self.game_counter);
                 new_observer.notify(self.game_counter);
+                let users = TttUsers(user_id, new_user);
+                self.communication.start_game(self.game_counter, users);
+
                 self.game_counter.inc();
                 paired = true;
                 break;
@@ -77,3 +102,5 @@ impl Lobby<TttCore, ActorObservers<TttCore>> for TttLobby /*<O>*/ {
         }
     }
 }
+/*
+*/

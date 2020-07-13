@@ -21,7 +21,7 @@ pub trait Observers<C: GameCore> {
     type StartGameObserver: StartGameObserver<C::Users>;
 }
 
-pub trait StartGameObserver<US /*: Users*/ > {
+pub trait StartGameObserver<US /*: Users*/ >: Unpin {
     fn start_game(&self, game_id: GameId, users: US);
 }
 
@@ -33,7 +33,8 @@ pub trait GameObserver: Unpin + 'static {
 
 pub trait Wish: FromStr {}
 
-pub trait Lobby<C: GameCore, O: Observers<C>>: Default {
+pub trait Lobby<C: GameCore, O: Observers<C>> {
+    fn with_communication(observer: O::StartGameObserver) -> Self;
     fn add_ticket(&mut self, user_id: UserId, wish: C::Wish, observer: O::GameObserver);
 }
 

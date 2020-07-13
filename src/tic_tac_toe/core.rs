@@ -11,7 +11,7 @@ impl GameCore for TttCore {
     type Users = TttUsers;
 }
 
-pub struct TttUsers(UserId, UserId);
+pub struct TttUsers(pub UserId, pub UserId);
 impl Users for TttUsers {}
 
 #[derive(Clone, Copy)]
