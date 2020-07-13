@@ -25,7 +25,7 @@ pub struct FindPair<W: Wish> {
 /*
  * Message from Lobby to GameServer actor, for starting new game
  */
-pub struct StartGame<US: Users> {
+pub struct StartGame<US /*: Users*/ > {
     pub users: US,
     pub game_id: GameId,
 }

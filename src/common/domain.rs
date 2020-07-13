@@ -9,7 +9,7 @@ pub trait Id {
 
 pub trait GameCore: 'static {
     type Wish: Wish + Send + 'static;
-    type Users: Users;
+    type Users: Send /*: Users */ ;
 }
 
 pub trait GameLogic<C: GameCore, O: Observers<C>>: Unpin + 'static {
@@ -21,7 +21,7 @@ pub trait Observers<C: GameCore> {
     type StartGameObserver: StartGameObserver<C::Users>;
 }
 
-pub trait StartGameObserver<US: Users> {
+pub trait StartGameObserver<US /*: Users*/ > {
     fn start_game(&self, game_id: GameId, users: US);
 }
 

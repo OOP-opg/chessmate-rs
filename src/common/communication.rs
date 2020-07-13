@@ -29,9 +29,9 @@ impl From<Recipient<NewGame>> for ActorGameObserver {
     }
 }
 
-pub struct ActorStartGameObserver<US: Users>(Recipient<StartGame<US>>);
+pub struct ActorStartGameObserver<US: Send /*: Users*/ >(Recipient<StartGame<US>>);
 
-impl<US: Users> StartGameObserver<US> for ActorStartGameObserver<US> {
+impl<US: Send /*: Users */> StartGameObserver<US> for ActorStartGameObserver<US> {
     fn start_game(&self, game_id: GameId, users: US) {
         let start_game_msg = StartGame { game_id, users };
         if let Err(e) = self.0.do_send(start_game_msg) {
@@ -40,7 +40,7 @@ impl<US: Users> StartGameObserver<US> for ActorStartGameObserver<US> {
     }
 }
 
-impl<US: Users> From<Recipient<StartGame<US>>> for ActorStartGameObserver<US> {
+impl<US: Send /*: Users */> From<Recipient<StartGame<US>>> for ActorStartGameObserver<US> {
     fn from(src: Recipient<StartGame<US>>) -> Self {
         ActorStartGameObserver(src)
     }
