@@ -10,6 +10,7 @@ pub trait Id {
 pub trait GameCore: 'static {
     type Wish: Wish + Send + 'static;
     type Users: Send /*: Users */ ;
+//    type Action: Send;
 }
 
 pub trait GameLogic<C: GameCore, O: Observers<C>>: Unpin + 'static {
@@ -25,7 +26,7 @@ pub trait StartGameObserver<US /*: Users*/ >: Unpin {
     fn start_game(&self, game_id: GameId, users: US);
 }
 
-pub trait Users: Send {}
+//pub trait Users: Send {}
 
 pub trait GameObserver: Unpin + 'static {
     fn notify(&self, game_id: GameId);
@@ -38,8 +39,9 @@ pub trait Lobby<C: GameCore, O: Observers<C>> {
     fn add_ticket(&mut self, user_id: UserId, wish: C::Wish, observer: O::GameObserver);
 }
 
-pub trait Action: FromStr {}
+//pub trait Action: FromStr {}
 
-pub trait GamePool<A: Action>: Default {
-    fn do_game_action(&mut self, game_id: GameId, user_id: UserId, action: A);
+pub trait GamePool<C: GameCore, O: Observers<C>>: Default {
+    fn with_communication(observer: O::StartGameObserver) -> Self;
+//    fn do_game_action(&mut self, game_id: GameId, user_id: UserId, action: C::Action);
 }

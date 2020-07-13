@@ -1,5 +1,5 @@
 use super::core::GameId;
-use super::domain::{GameCore, GameObserver, Observers, StartGameObserver, Users};
+use super::domain::{GameCore, GameObserver, Observers, StartGameObserver, /*Users*/};
 use super::messages::{NewGame, StartGame};
 use actix::Recipient;
 use std::marker::PhantomData;

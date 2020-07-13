@@ -2,7 +2,7 @@ use std::ops::Not;
 use std::str::FromStr;
 
 use crate::common::core::UserId;
-use crate::common::domain::{GameCore, Users, Wish};
+use crate::common::domain::{GameCore, /* Users,*/ Wish};
 
 pub struct TttCore;
 
@@ -12,7 +12,7 @@ impl GameCore for TttCore {
 }
 
 pub struct TttUsers(pub UserId, pub UserId);
-impl Users for TttUsers {}
+//impl Users for TttUsers {}
 
 #[derive(Clone, Copy)]
 pub enum Pane {

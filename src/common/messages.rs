@@ -1,5 +1,5 @@
 use super::core::{GameId, UserId};
-use super::domain::{Users, Wish};
+use super::domain::{ /*Users,*/ Wish};
 use actix::{Message, Recipient};
 
 #[derive(Message)]
