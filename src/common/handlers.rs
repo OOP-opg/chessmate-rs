@@ -117,5 +117,5 @@ where
         server: server.get_ref().clone(),
         user_id,
     };
-    ws::start(session, &req, stream).map_err(|e| ReqError::WebSocketError(e))
+    ws::start(session, &req, stream).map_err(ReqError::WebSocketError)
 }

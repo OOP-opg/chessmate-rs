@@ -10,6 +10,7 @@ where
     GL: GameLogic<GC, ActorObservers<GC>>,
 {
     lobby: Option<GL::Lobby>,
+    gamepool: GL::GamePool,
 }
 
 impl<GC, GL> Default for GameServer<GC, GL>
@@ -20,6 +21,7 @@ where
     fn default() -> Self {
         GameServer {
             lobby: None,
+            gamepool: GL::GamePool::default(),
         }
     }
 }
@@ -51,7 +53,6 @@ where
         }
     }
 }
-
 
 impl<GC, GL> Handler<StartGame<GC::Users>> for GameServer<GC, GL>
 where

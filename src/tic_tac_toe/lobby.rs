@@ -28,7 +28,6 @@ impl Observers<TttCore> for TttActorObservers {
 }
 */
 
-//TODO: make generic
 pub struct TttLobby /**/ <O: Observers<TttCore>> /* */ 
     where O::StartGameObserver: StartGameObserver<TttUsers> {
     communication: O::StartGameObserver,
