@@ -23,13 +23,6 @@ pub struct FindPair<W: Wish> {
 }
 
 
-/*
- * Message from GamePool to Session actor about co-players move or invalid player move
- */
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct ActionOutcome<R>(pub R);
-
 
 /*
  * Message from Lobby to GameServer actor, for starting new game
@@ -43,10 +36,32 @@ pub struct StartGame<US /*: Users*/> {
 
 /*
  * Message from Session to GamePool (via GameServer) about join to game
+ * - user_id and game_id for identify user and game to join to
+ * - addr specifies recipient which will be recieve ActionOutcome messages
  */
-//TODO: join message
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct JoinToGame<R: Send> {
+    pub user_id: UserId,
+    pub game_id: GameId,
+    pub addr: Recipient<ActionOutcome<R>>
+}
 
 /*
  * Message from Session to GamePool (via GameServer) about make action
  */
-//TODO: action message 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct DoAction<A> {
+    pub user_id: UserId,
+    pub game_id: GameId,
+    pub action: A,
+}
+
+/*
+ * Message from GamePool to Session actor about co-players move or invalid player move
+ * parametrised over MoveResult
+ */
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ActionOutcome<R>(pub R);
