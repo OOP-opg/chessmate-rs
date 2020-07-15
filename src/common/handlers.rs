@@ -7,7 +7,7 @@ use actix_web::{Error, HttpRequest, HttpResponse, ResponseError};
 use actix_web_actors::ws;
 
 use super::communication::ActorObservers;
-use super::core::UserId;
+use super::core::{UserId, GameId};
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
 use super::messages::{FindPair, NewGame};
@@ -57,6 +57,17 @@ where
             self.server.do_send(pair_request);
         }
     }
+
+    fn join_game(&self, game_id: &str, ctx: &mut ws::WebsocketContext<Self>) {
+        log::debug!("Client wants to join to {}", game_id);
+        log::error!("UNIMPLEMENTED");
+    }
+
+    fn make_action(&self, action: &str, ctx: &mut ws::WebsocketContext<Self>) {
+        //TODO: implement playing game
+        log::debug!("Client wants to do {}", action);
+        log::error!("UNIMPLEMENTED");
+    }
 }
 
 impl<GC, GL> StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsPlayerSession<GC, GL>
@@ -68,18 +79,18 @@ where
         log::info!("websocket Message: {:?}", msg);
 
         if let Ok(message) = msg {
-            match message {
-                ws::Message::Text(txt) => {
-                    let mut args = txt.splitn(2, "?");
-                    let cmd = args.next().unwrap();
-                    let attrs = args.next().unwrap();
-                    match cmd {
-                        "/find" => self.find_pair(attrs, ctx),
-                        //TODO: implement playing game
-                        _ => ctx.text("Henlo"),
-                    }
+            if let ws::Message::Text(txt) = message {
+                let mut args = txt.splitn(2, '?');
+                let cmd = args.next().unwrap();
+                let attrs = args.next().unwrap();
+                match cmd {
+                    "/find" => self.find_pair(attrs, ctx),
+                    "/action" => self.make_action(attrs, ctx),
+                    "/join" => self.join_game(attrs, ctx),
+                    _ => ctx.text("Henlo"),
                 }
-                _ => ctx.text("What are you doing"),
+            } else {
+                ctx.text("What are you doing");
             }
         } else {
             unimplemented!();
