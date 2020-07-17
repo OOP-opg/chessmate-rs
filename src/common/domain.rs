@@ -64,6 +64,12 @@ pub trait Lobby<C: GameCore, O: Observers<C>> {
  * GamePool
  */
 pub trait GamePool<C: GameCore, O: Observers<C>>: Default {
+    // in: @start_game => lobby -> gameserver -> gamepool
+    // out: nothing
+    //
+    /// Create new engine
+    fn new_game(&mut self, game_id: GameId, users: C::Users);
+
     // in: @join_game => websocket -> gameserver -> gamepool
     //
     /// Register observer for game
@@ -71,11 +77,6 @@ pub trait GamePool<C: GameCore, O: Observers<C>>: Default {
         &mut self, game_id: GameId, user_id: UserId, observer: O::GameMoveObserver
     );
 
-    // in: @start_game => lobby -> gameserver -> gamepool
-    // out: nothing
-    //
-    /// Create new engine
-    fn new_game(&mut self, game_id: GameId, users: C::Users);
 
     // in: @action => websocket -> gameserver -> gamepool
     // out: @action_outcome => gamepool -> websocket (or websockets)
