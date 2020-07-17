@@ -21,6 +21,50 @@ where
     user_id: UserId,
 }
 
+impl<GC, GL> WsPlayerSession<GC, GL>
+where
+    GC: GameCore,
+    GL: GameLogic<GC, ActorObservers<GC>>,
+{
+    fn find_pair(&self, wish: &str, ctx: &mut ws::WebsocketContext<Self>) {
+        if let Ok(wish) = wish.parse() {
+            let pair_request = FindPair {
+                user_id: self.user_id,
+                wish,
+                addr: ctx.address().recipient(),
+            };
+            self.server.do_send(pair_request);
+        }
+    }
+
+    fn deliver_new_game(&self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
+        let game_id = msg.0;
+        ctx.text(format!("{}", game_id));
+    }
+
+    fn join_game(&self, game_id: &str, _ctx: &mut ws::WebsocketContext<Self>) {
+        //TODO: send message to gameserver about joining to game
+        log::debug!("Client wants to join to {}", game_id);
+        log::error!("UNIMPLEMENTED");
+    }
+
+    fn make_action(&self, action: &str, _ctx: &mut ws::WebsocketContext<Self>) {
+        //TODO: implement playing game
+        log::debug!("Client wants to do {}", action);
+        log::error!("UNIMPLEMENTED");
+    }
+
+    fn deliver_action_outcome(
+        &self,
+        result: ActionOutcome<GC::ActionResult>,
+        _ctx: &mut ws::WebsocketContext<Self>,
+    ) {
+        //TODO: notify frontend about what's going on in the game
+        log::debug!("GamePool responds with {:?}", result);
+        log::error!("UNIMPLEMENTED");
+    }
+}
+
 impl<GC, GL> Actor for WsPlayerSession<GC, GL>
 where
     GC: GameCore,
@@ -57,47 +101,6 @@ where
     }
 }
 
-impl<GC, GL> WsPlayerSession<GC, GL>
-where
-    GC: GameCore,
-    GL: GameLogic<GC, ActorObservers<GC>>,
-{
-    fn find_pair(&self, wish: &str, ctx: &mut ws::WebsocketContext<Self>) {
-        if let Ok(wish) = wish.parse() {
-            let pair_request = FindPair {
-                user_id: self.user_id,
-                wish,
-                addr: ctx.address().recipient(),
-            };
-            self.server.do_send(pair_request);
-        }
-    }
-
-    fn deliver_new_game(&self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
-        let game_id = msg.0;
-        ctx.text(format!("{}", game_id));
-    }
-
-    fn join_game(&self, game_id: &str, _ctx: &mut ws::WebsocketContext<Self>) {
-        log::debug!("Client wants to join to {}", game_id);
-        log::error!("UNIMPLEMENTED");
-    }
-
-    fn make_action(&self, action: &str, _ctx: &mut ws::WebsocketContext<Self>) {
-        //TODO: implement playing game
-        log::debug!("Client wants to do {}", action);
-        log::error!("UNIMPLEMENTED");
-    }
-
-    fn deliver_action_outcome(
-        &self,
-        result: ActionOutcome<GC::ActionResult>,
-        _ctx: &mut ws::WebsocketContext<Self>,
-    ) {
-        log::debug!("GamePool responds with {:?}", result);
-        log::error!("UNIMPLEMENTED");
-    }
-}
 
 impl<GC, GL> StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsPlayerSession<GC, GL>
 where
@@ -114,8 +117,8 @@ where
                 let attrs = args.next().unwrap();
                 match cmd {
                     "/find" => self.find_pair(attrs, ctx),
-                    "/action" => self.make_action(attrs, ctx),
                     "/join" => self.join_game(attrs, ctx),
+                    "/action" => self.make_action(attrs, ctx),
                     _ => ctx.text("Henlo"),
                 }
             } else {
