@@ -1,6 +1,7 @@
 use super::core::{GameId, UserId};
 
 use std::str::FromStr;
+use std::fmt::{Display, Debug};
 
 pub trait Id {
     fn new() -> Self;
@@ -11,7 +12,7 @@ pub trait GameCore: 'static {
     type Wish: Wish + Send + 'static;
     type Users: Send;
     type Action: Send + FromStr;
-    type ActionResult: Send + ToString;
+    type ActionResult: Send + Display + Debug;
 }
 
 pub trait Wish: FromStr {}

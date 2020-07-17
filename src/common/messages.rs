@@ -58,6 +58,6 @@ pub struct DoAction<A> {
  * Message from GamePool to Session actor about co-players move or invalid player move
  * parametrised over MoveResult
  */
-#[derive(Message)]
+#[derive(Message, Debug)]
 #[rtype(result = "()")]
 pub struct ActionOutcome<R>(pub R);

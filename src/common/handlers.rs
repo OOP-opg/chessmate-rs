@@ -10,7 +10,11 @@ use super::communication::ActorObservers;
 use super::core::{UserId};
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{FindPair, NewGame};
+use super::messages::{
+    FindPair,
+    NewGame,
+    ActionOutcome,
+};
 
 struct WsPlayerSession<GC, GL>
 where
@@ -37,8 +41,23 @@ where
     type Result = ();
 
     fn handle(&mut self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
-        let game_id = msg.0;
-        ctx.text(format!("{}", game_id));
+        self.deliver_new_game(msg, ctx);
+    }
+}
+
+impl<GC, GL> Handler<ActionOutcome<GC::ActionResult>> for WsPlayerSession<GC, GL>
+where
+    GC: GameCore,
+    GL: GameLogic<GC, ActorObservers<GC>>,
+{
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        msg: ActionOutcome<GC::ActionResult>,
+        ctx: &mut ws::WebsocketContext<Self>
+        ) {
+        self.deliver_action_outcome(msg, ctx);
     }
 }
 
@@ -58,6 +77,11 @@ where
         }
     }
 
+    fn deliver_new_game(&self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
+        let game_id = msg.0;
+        ctx.text(format!("{}", game_id));
+    }
+
     fn join_game(&self, game_id: &str, _ctx: &mut ws::WebsocketContext<Self>) {
         log::debug!("Client wants to join to {}", game_id);
         log::error!("UNIMPLEMENTED");
@@ -66,6 +90,15 @@ where
     fn make_action(&self, action: &str, _ctx: &mut ws::WebsocketContext<Self>) {
         //TODO: implement playing game
         log::debug!("Client wants to do {}", action);
+        log::error!("UNIMPLEMENTED");
+    }
+
+    fn deliver_action_outcome(
+        &self,
+        result: ActionOutcome<GC::ActionResult>,
+        ctx: &mut ws::WebsocketContext<Self>
+        ) {
+        log::debug!("GamePool responds with {:?}", result);
         log::error!("UNIMPLEMENTED");
     }
 }
