@@ -1,7 +1,7 @@
 use super::core::{GameId, UserId};
 
+use std::fmt::{Debug, Display};
 use std::str::FromStr;
-use std::fmt::{Display, Debug};
 
 pub trait Id {
     fn new() -> Self;

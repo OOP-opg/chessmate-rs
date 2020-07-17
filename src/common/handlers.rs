@@ -7,14 +7,10 @@ use actix_web::{Error, HttpRequest, HttpResponse, ResponseError};
 use actix_web_actors::ws;
 
 use super::communication::ActorObservers;
-use super::core::{UserId};
+use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{
-    FindPair,
-    NewGame,
-    ActionOutcome,
-};
+use super::messages::{ActionOutcome, FindPair, NewGame};
 
 struct WsPlayerSession<GC, GL>
 where
@@ -55,8 +51,8 @@ where
     fn handle(
         &mut self,
         msg: ActionOutcome<GC::ActionResult>,
-        ctx: &mut ws::WebsocketContext<Self>
-        ) {
+        ctx: &mut ws::WebsocketContext<Self>,
+    ) {
         self.deliver_action_outcome(msg, ctx);
     }
 }
@@ -96,8 +92,8 @@ where
     fn deliver_action_outcome(
         &self,
         result: ActionOutcome<GC::ActionResult>,
-        ctx: &mut ws::WebsocketContext<Self>
-        ) {
+        _ctx: &mut ws::WebsocketContext<Self>,
+    ) {
         log::debug!("GamePool responds with {:?}", result);
         log::error!("UNIMPLEMENTED");
     }
