@@ -7,7 +7,7 @@ use actix_web::{Error, HttpRequest, HttpResponse, ResponseError};
 use actix_web_actors::ws;
 
 use super::communication::ActorObservers;
-use super::core::{GameId, UserId};
+use super::core::{UserId};
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
 use super::messages::{FindPair, NewGame};
@@ -58,12 +58,12 @@ where
         }
     }
 
-    fn join_game(&self, game_id: &str, ctx: &mut ws::WebsocketContext<Self>) {
+    fn join_game(&self, game_id: &str, _ctx: &mut ws::WebsocketContext<Self>) {
         log::debug!("Client wants to join to {}", game_id);
         log::error!("UNIMPLEMENTED");
     }
 
-    fn make_action(&self, action: &str, ctx: &mut ws::WebsocketContext<Self>) {
+    fn make_action(&self, action: &str, _ctx: &mut ws::WebsocketContext<Self>) {
         //TODO: implement playing game
         log::debug!("Client wants to do {}", action);
         log::error!("UNIMPLEMENTED");
