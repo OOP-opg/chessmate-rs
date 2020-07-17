@@ -31,7 +31,7 @@ pub trait Observers<C: GameCore> {
 }
 
 pub trait GameMoveObserver<R>: Unpin {
-    fn result_action(&self, result: R); 
+    fn result_action(&self, result: R);
 }
 
 pub trait GameObserver: Unpin + 'static {
@@ -42,9 +42,8 @@ pub trait StartGameObserver<US /*: Users*/ >: Unpin {
     fn start_game(&self, game_id: GameId, users: US);
 }
 
-
 /*
- * Lobby 
+ * Lobby
  */
 pub trait Lobby<C: GameCore, O: Observers<C>> {
     // in: gameserver -> lobby
@@ -73,15 +72,12 @@ pub trait GamePool<C: GameCore, O: Observers<C>>: Default {
     // in: @join_game => websocket -> gameserver -> gamepool
     //
     /// Register observer for game
-    fn join_game(
-        &mut self, game_id: GameId, user_id: UserId, observer: O::GameMoveObserver
-    );
-
+    fn join_game(&mut self, game_id: GameId, user_id: UserId, observer: O::GameMoveObserver);
 
     // in: @action => websocket -> gameserver -> gamepool
     // out: @action_outcome => gamepool -> websocket (or websockets)
     //
-    /// Send action to engine and notify all players about new action or return error 
+    /// Send action to engine and notify all players about new action or return error
     /// to sender
     fn do_game_action(&mut self, game_id: GameId, user_id: UserId, action: C::Action);
 }

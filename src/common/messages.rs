@@ -2,14 +2,12 @@ use super::core::{GameId, UserId};
 use super::domain::Wish;
 use actix::{Message, Recipient};
 
-
 /*
  * Message returned from Lobby to Session actor, to notify about new game
  */
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct NewGame(pub GameId);
-
 
 /*
  * Message from Session actor to Lobby (via GameServer) about ask to find new game
@@ -21,8 +19,6 @@ pub struct FindPair<W: Wish> {
     pub wish: W,
     pub addr: Recipient<NewGame>,
 }
-
-
 
 /*
  * Message from Lobby to GameServer actor, for starting new game
@@ -44,7 +40,7 @@ pub struct StartGame<US /*: Users*/> {
 pub struct JoinToGame<R: Send> {
     pub user_id: UserId,
     pub game_id: GameId,
-    pub addr: Recipient<ActionOutcome<R>>
+    pub addr: Recipient<ActionOutcome<R>>,
 }
 
 /*

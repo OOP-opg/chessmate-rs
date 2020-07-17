@@ -7,7 +7,7 @@ use actix_web::{Error, HttpRequest, HttpResponse, ResponseError};
 use actix_web_actors::ws;
 
 use super::communication::ActorObservers;
-use super::core::{UserId, GameId};
+use super::core::{GameId, UserId};
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
 use super::messages::{FindPair, NewGame};
