@@ -101,7 +101,6 @@ where
     }
 }
 
-
 impl<GC, GL> StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsPlayerSession<GC, GL>
 where
     GC: GameCore,

@@ -1,6 +1,6 @@
 use super::communication::ActorObservers;
 use super::domain::{GameCore, GameLogic, Lobby};
-use super::messages::{FindPair, StartGame, JoinToGame, DoAction};
+use super::messages::{DoAction, FindPair, JoinToGame, StartGame};
 
 use actix::{Actor, AsyncContext, Context, Handler};
 
@@ -12,7 +12,6 @@ where
     lobby: Option<GL::Lobby>,
     gamepool: GL::GamePool,
 }
-
 
 impl<GC, GL> GameServer<GC, GL>
 where

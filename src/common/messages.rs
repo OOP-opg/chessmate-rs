@@ -2,7 +2,6 @@ use super::core::{GameId, UserId};
 use super::domain::Wish;
 use actix::{Message, Recipient};
 
-
 /*
  * Message from Session actor to Lobby (via GameServer) about ask to find new game
  */
