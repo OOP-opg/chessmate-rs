@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 
 cargo clippy --release -- -W clippy::pedantic
+echo "==TESTS=="
+cargo test
 echo "==TODO=="
 grep --color=auto -r "TODO" src/common src/tic_tac_toe
-echo "==FIXME==="
+echo "==FIXME=="
 grep --color=auto -r "FIXME" src/common src/tic_tac_toe

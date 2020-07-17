@@ -10,7 +10,7 @@ use super::communication::ActorObservers;
 use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{ActionOutcome, FindPair, NewGame};
+use super::messages::{ActionOutcome, FindPair, NewGame, JoinToGame};
 
 struct WsPlayerSession<GC, GL>
 where
@@ -35,6 +35,7 @@ where
             };
             self.server.do_send(pair_request);
         }
+        //TODO: handle invalid wish parsing
     }
 
     fn deliver_new_game(&self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
@@ -42,14 +43,25 @@ where
         ctx.text(format!("{}", game_id));
     }
 
-    fn join_game(&self, game_id: &str, _ctx: &mut ws::WebsocketContext<Self>) {
-        //TODO: send message to gameserver about joining to game
+    fn join_game(&self, game_id: &str, ctx: &mut ws::WebsocketContext<Self>) {
         log::debug!("Client wants to join to {}", game_id);
-        log::error!("UNIMPLEMENTED");
+        if let Ok(game_id) = game_id.parse() {
+            let join_game_request = JoinToGame {
+                user_id: self.user_id,
+                game_id,
+                addr: ctx.address().recipient(),
+            };
+            self.server.do_send(join_game_request);
+        }
+        //TODO: handle invalid game_id parsing
     }
 
-    fn make_action(&self, action: &str, _ctx: &mut ws::WebsocketContext<Self>) {
+    fn make_action(&self, attrs: &str) {
         //TODO: implement playing game
+        let mut args = attrs.splitn(2, ':');
+        let game_id = args.next().unwrap();
+        let action = args.next().unwrap();
+        //FIXME: we shouldn't panic on wrong query from frontend
         log::debug!("Client wants to do {}", action);
         log::error!("UNIMPLEMENTED");
     }
@@ -114,10 +126,11 @@ where
                 let mut args = txt.splitn(2, '?');
                 let cmd = args.next().unwrap();
                 let attrs = args.next().unwrap();
+                //FIXME: we shouldn't panic because of damn frontend
                 match cmd {
                     "/find" => self.find_pair(attrs, ctx),
                     "/join" => self.join_game(attrs, ctx),
-                    "/action" => self.make_action(attrs, ctx),
+                    "/action" => self.make_action(attrs),
                     _ => ctx.text("Henlo"),
                 }
             } else {

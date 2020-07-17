@@ -5,3 +5,4 @@ pub mod gameserver;
 pub mod handlers;
 pub mod messages;
 pub mod server;
+pub mod query_utils;
