@@ -11,6 +11,7 @@ use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
 use super::messages::{ActionOutcome, FindPair, NewGame, JoinToGame};
+use super::query_utils::{parse_query, parse_attrs};
 
 struct WsPlayerSession<GC, GL>
 where
@@ -58,12 +59,16 @@ where
 
     fn make_action(&self, attrs: &str) {
         //TODO: implement playing game
-        let mut args = attrs.splitn(2, ':');
-        let game_id = args.next().unwrap();
-        let action = args.next().unwrap();
-        //FIXME: we shouldn't panic on wrong query from frontend
-        log::debug!("Client wants to do {}", action);
-        log::error!("UNIMPLEMENTED");
+        match parse_attrs(attrs, 2) {
+            Ok(attrs) => {
+                let game_id = attrs[0];
+                let action = attrs[1];
+                log::debug!("Client wants to do {} in {}", game_id, action);
+                log::error!("UNIMPLEMENTED");
+                //TODO: handle invalid game_id parsing
+            },
+            Err(_) => log::error!("Error during parsing attrs to action"),
+        };
     }
 
     fn deliver_action_outcome(
@@ -123,21 +128,21 @@ where
 
         if let Ok(message) = msg {
             if let ws::Message::Text(txt) = message {
-                let mut args = txt.splitn(2, '?');
-                let cmd = args.next().unwrap();
-                let attrs = args.next().unwrap();
-                //FIXME: we shouldn't panic because of damn frontend
-                match cmd {
-                    "/find" => self.find_pair(attrs, ctx),
-                    "/join" => self.join_game(attrs, ctx),
-                    "/action" => self.make_action(attrs),
-                    _ => ctx.text("Henlo"),
+                match parse_query(&txt) {
+                    //TODO: decompose
+                    Ok((cmd, attrs)) => match cmd {
+                        "/find" => self.find_pair(attrs, ctx),
+                        "/join" => self.join_game(attrs, ctx),
+                        "/action" => self.make_action(attrs),
+                        _ => ctx.text("error:undefined_command"),
+                    },
+                    Err(e) => ctx.text(format!("error:invalid_query({:?})", e)),
                 }
             } else {
-                ctx.text("What are you doing");
+                ctx.text("error:unimplemented_format");
             }
         } else {
-            unimplemented!();
+            log::error!("Error during getting message from websocket");
         }
     }
 }
