@@ -58,7 +58,7 @@ where
     }
 
     fn make_action(&self, attrs: &str) {
-        match parse_attrs(attrs, 2) {
+        match parse_attrs(attrs, ':', 2) {
             Ok(attrs) => {
                 let game_id = if let Ok(game_id) = attrs[0].parse() {
                     game_id
@@ -84,12 +84,12 @@ where
         };
     }
 
+    /// Notifies frontend about what's going on in the game
     fn deliver_action_outcome(
         &self,
         result: ActionOutcome<GC::ActionResult>,
         ctx: &mut ws::WebsocketContext<Self>,
     ) {
-        //TODO: notify frontend about what's going on in the game
         let ActionOutcome { user_id, game_id, result } = result;
         log::debug!("GamePool responds with {:?}", result);
         ctx.text(format!("/event/action/{}/{}/{}", game_id, user_id, result));

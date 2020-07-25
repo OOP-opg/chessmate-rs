@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use super::core::{TttCore, TttUsers};
+use super::core::{TttCore, TttUsers, TttActionResult};
 use crate::common::core::{GameId, UserId};
-use crate::common::domain::{GameCore, StartGameObserver, GameObserver, Id, Lobby, Observers};
+use crate::common::domain::{GameMoveObserver, StartGameObserver, GameObserver, Id, Lobby, Observers};
 
-use crate::common::communication::{ActorGameObserver, ActorObservers};
 
 use super::core::TttWish;
 
@@ -29,7 +28,9 @@ impl Observers<TttCore> for TttActorObservers {
 */
 
 pub struct TttLobby /**/ <O: Observers<TttCore>> /* */ 
-    where O::StartGameObserver: StartGameObserver<TttUsers> {
+    where O: Observers<TttCore>,
+          O::StartGameObserver: StartGameObserver<TttUsers>,
+          O::GameMoveObserver: GameMoveObserver<TttActionResult>, {
     communication: O::StartGameObserver,
     tickets: HashMap<UserId, (Ticket, /*ActorGameObserver*/ O::GameObserver)>,
     game_counter: GameId,
@@ -48,8 +49,10 @@ impl<O: Observers<TttCore>> Default for TttLobby<O>
 */
 
 
-impl<O: Observers<TttCore>> Lobby<TttCore, O> for TttLobby<O> /*<O>*/ 
-    where O::StartGameObserver: StartGameObserver<TttUsers> {
+impl<O> Lobby<TttCore, O> for TttLobby<O>
+    where O: Observers<TttCore>,
+          O::GameMoveObserver: GameMoveObserver<TttActionResult>,
+          O::StartGameObserver: StartGameObserver<TttUsers>, {
     fn with_communication(communication: O::StartGameObserver) -> Self {
         TttLobby {
             communication,
@@ -62,7 +65,7 @@ impl<O: Observers<TttCore>> Lobby<TttCore, O> for TttLobby<O> /*<O>*/
         new_user: UserId,
         new_wish: TttWish,
         new_observer: O::GameObserver,
-        /*ActorGameObserver*/) {
+    ) {
         log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
 
         let new_ticket = Ticket {
