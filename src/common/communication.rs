@@ -1,4 +1,4 @@
-use super::core::GameId;
+use super::core::{GameId, UserId};
 use super::domain::{
     GameCore, GameMoveObserver, GameObserver, Observers, StartGameObserver, /*Users*/
 };
@@ -51,8 +51,8 @@ impl From<Recipient<NewGame>> for ActorGameObserver {
 pub struct ActorGameMoveObserver<R: Send + ToString>(Recipient<ActionOutcome<R>>);
 
 impl<R: Send + ToString> GameMoveObserver<R> for ActorGameMoveObserver<R> {
-    fn result_action(&self, result: R) {
-        if let Err(e) = self.0.do_send(ActionOutcome(result)) {
+    fn result_action(&self, user_id: UserId, game_id: GameId, result: R) {
+        if let Err(e) = self.0.do_send(ActionOutcome { user_id, game_id, result} ) {
             log::error!("Error with send result of player action: {}", e);
         }
     }

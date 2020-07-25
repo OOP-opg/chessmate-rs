@@ -61,4 +61,8 @@ pub struct DoAction<A> {
  */
 #[derive(Message, Debug)]
 #[rtype(result = "()")]
-pub struct ActionOutcome<R>(pub R);
+pub struct ActionOutcome<R> {
+    pub user_id: UserId,
+    pub game_id: GameId,
+    pub result: R,
+}

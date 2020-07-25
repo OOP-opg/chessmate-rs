@@ -10,7 +10,7 @@ use super::communication::ActorObservers;
 use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{ActionOutcome, FindPair, NewGame, JoinToGame};
+use super::messages::{DoAction, ActionOutcome, FindPair, NewGame, JoinToGame};
 use super::query_utils::{parse_query, parse_attrs};
 
 struct WsPlayerSession<GC, GL>
@@ -41,7 +41,7 @@ where
 
     fn deliver_new_game(&self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
         let game_id = msg.0;
-        ctx.text(format!("{}", game_id));
+        ctx.text(format!("/event/new_game/{}", game_id));
     }
 
     fn join_game(&self, game_id: &str, ctx: &mut ws::WebsocketContext<Self>) {
@@ -58,15 +58,28 @@ where
     }
 
     fn make_action(&self, attrs: &str) {
-        //TODO: implement playing game
         match parse_attrs(attrs, 2) {
             Ok(attrs) => {
-                let game_id = attrs[0];
-                let action = attrs[1];
-                log::debug!("Client wants to do {} in {}", game_id, action);
-                log::error!("UNIMPLEMENTED");
-                //TODO: handle invalid game_id parsing
+                let game_id = if let Ok(game_id) = attrs[0].parse() {
+                    game_id
+                } else {
+                    //TODO: handle invalid game_id parsing
+                    return
+                };
+                let action = if let Ok(action) = attrs[1].parse() {
+                    action
+                } else {
+                    //TODO: handle invalid game_id parsing
+                    return
+                };
+                let do_action = DoAction {
+                    action,
+                    user_id: self.user_id,
+                    game_id,
+                };
+                self.server.do_send(do_action);
             },
+            //TODO: handle different errors
             Err(_) => log::error!("Error during parsing attrs to action"),
         };
     }
@@ -74,11 +87,12 @@ where
     fn deliver_action_outcome(
         &self,
         result: ActionOutcome<GC::ActionResult>,
-        _ctx: &mut ws::WebsocketContext<Self>,
+        ctx: &mut ws::WebsocketContext<Self>,
     ) {
         //TODO: notify frontend about what's going on in the game
+        let ActionOutcome { user_id, game_id, result } = result;
         log::debug!("GamePool responds with {:?}", result);
-        log::error!("UNIMPLEMENTED");
+        ctx.text(format!("/event/action/{}/{}/{}", game_id, user_id, result));
     }
 }
 
@@ -134,12 +148,12 @@ where
                         "/find" => self.find_pair(attrs, ctx),
                         "/join" => self.join_game(attrs, ctx),
                         "/action" => self.make_action(attrs),
-                        _ => ctx.text("error:undefined_command"),
+                        _ => ctx.text("/error/undefined_command"),
                     },
-                    Err(e) => ctx.text(format!("error:invalid_query({:?})", e)),
+                    Err(e) => ctx.text(format!("/error/invalid_query:{:?}", e)),
                 }
             } else {
-                ctx.text("error:unimplemented_format");
+                ctx.text("/error/unimplemented_transport_format");
             }
         } else {
             log::error!("Error during getting message from websocket");

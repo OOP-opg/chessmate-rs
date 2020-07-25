@@ -32,7 +32,7 @@ pub trait Observers<C: GameCore> {
 }
 
 pub trait GameMoveObserver<R>: Unpin {
-    fn result_action(&self, result: R);
+    fn result_action(&self, user: UserId, game: GameId, result: R);
 }
 
 pub trait GameObserver: Unpin + 'static {
