@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::marker::PhantomData;
 
 use super::engine::TttEngine;
 use super::core::{TttCore, TttUsers, TttAction, TttActionResult};
@@ -7,12 +6,16 @@ use super::core::{TttCore, TttUsers, TttAction, TttActionResult};
 use crate::common::core::{GameId, UserId};
 use crate::common::domain::{GamePool, Observers, StartGameObserver, GameMoveObserver};
 
+struct GameState<MO: GameMoveObserver<TttActionResult>> {
+    engine: TttEngine,
+    observers: HashMap<UserId, MO>,
+}
+
 pub struct TttGamePool<O>
     where O: Observers<TttCore>,
           O::GameMoveObserver: GameMoveObserver<TttActionResult>,
           O::StartGameObserver: StartGameObserver<TttUsers> {
-    games: HashMap<GameId, TttEngine>,
-    observers: PhantomData<O>,
+    games: HashMap<GameId, GameState<O::GameMoveObserver>>,
 }
 
 impl<O> Default for TttGamePool<O> 
@@ -22,7 +25,6 @@ impl<O> Default for TttGamePool<O>
     fn default() -> Self {
         Self {
             games: HashMap::new(),
-            observers: PhantomData,
         }
     }
 }
