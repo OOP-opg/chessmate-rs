@@ -58,6 +58,10 @@ pub trait Lobby<C: GameCore, O: Observers<C>> {
     //
     /// Register observer to which send message about available game
     fn add_ticket(&mut self, user_id: UserId, wish: C::Wish, observer: O::GameObserver);
+    /*
+     * function to join game for existing ticket (without setting new ticket)
+     * fn join_game(&mut self, user_id: UserId, owner_id: UserId, observer: O::GameObserver);
+     */
 }
 
 /*
@@ -73,7 +77,7 @@ pub trait GamePool<C: GameCore, O: Observers<C>>: Default {
     // in: @join_game => websocket -> gameserver -> gamepool
     //
     /// Register observer for game
-    fn join_game(&mut self, game_id: GameId, user_id: UserId, observer: O::GameMoveObserver);
+    fn enter_game(&mut self, game_id: GameId, user_id: UserId, observer: O::GameMoveObserver);
 
     // in: @action => websocket -> gameserver -> gamepool
     // out: @action_outcome => gamepool -> websocket (or websockets)

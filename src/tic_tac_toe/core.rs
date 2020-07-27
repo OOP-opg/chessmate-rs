@@ -36,11 +36,11 @@ impl Display for TttAction {
 }
 
 #[derive(Debug)]
-pub struct TttMove { x: u8, y: u8 }
+pub struct TttMove { pub col: u8, pub row: u8 }
 
 impl Display for TttMove {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{x},{y}", x=self.x, y=self.y)
+        write!(f, "{col},{row}", col=self.col, row=self.row)
     }
 }
 
@@ -63,7 +63,7 @@ impl FromStr for TttAction {
                 },
                 "move" => match parse_attrs(attrs[1], ',', 2) {
                     Ok(pos) => match (pos[0].parse(), pos[1].parse()) {
-                        (Ok(x), Ok(y)) => Ok(TttAction::Move( TttMove { x, y } )),
+                        (Ok(col), Ok(row)) => Ok(TttAction::Move( TttMove { col, row } )),
                         _ => Err("invalid_move".to_owned()),
                     }
                     _ => Err("invalid_move".to_owned())
@@ -91,8 +91,30 @@ impl Display for TttActionResult {
     }
 }
 
+#[derive(Clone)]
 pub struct TttUsers(pub UserId, pub UserId);
-//impl Users for TttUsers {}
+
+impl TttUsers {
+    pub fn contains(&self, user_id: UserId) -> bool {
+        self.0 == user_id || self.1 == user_id
+    }
+
+    pub fn first(&self) -> UserId {
+        self.0
+    }
+
+    pub fn second(&self) -> UserId {
+        self.1
+    }
+
+    pub fn next(&self, current_player: UserId) -> UserId {
+        if current_player == self.first() {
+            self.second() 
+        } else {
+            self.first()
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TttSign {

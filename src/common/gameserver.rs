@@ -28,19 +28,19 @@ where
     }
 
     fn start_game(&mut self, msg: StartGame<GC::Users>) {
-        //TODO: starting game on event from lobby
+        //FIXME: starting game on event from lobby
         log::debug!("New game {}", msg.game_id);
         log::error!("UNIMPLEMENTED");
     }
 
     fn join_to_game(&mut self, msg: JoinToGame<GC::ActionResult>) {
-        //TODO: join user to game on event from frontend
+        //FIXME: join user to game on event from frontend
         log::debug!("User {} wants to join to {}", msg.user_id, msg.game_id);
         log::error!("UNIMPLEMENTED");
     }
 
     fn do_action(&mut self, msg: DoAction<GC::Action>) {
-        //TODO: send player action to gamepool
+        //FIXME: send player action to gamepool
         log::debug!("User {} wants do smth in {}", msg.user_id, msg.game_id);
         log::error!("UNIMPLEMENTED");
     }
