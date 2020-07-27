@@ -1,6 +1,7 @@
 use super::core::{GameId, UserId};
 use super::domain::{
-    GameCore, GameMoveObserver, GameObserver, Observers, StartGameObserver, /*Users*/
+    GameCore, GameMoveObserver, GameObserver, Observers,
+    StartGameObserver, /*Users*/
 };
 use super::messages::{ActionOutcome, NewGame, StartGame};
 use actix::Recipient;
@@ -48,11 +49,17 @@ impl From<Recipient<NewGame>> for ActorGameObserver {
  * @result_action(game_id) sends ActionOutcome message to recipient
  * Also we are implementing From<Recipient> for better ergonomics
  */
-pub struct ActorGameMoveObserver<R: Send + ToString>(Recipient<ActionOutcome<R>>);
+pub struct ActorGameMoveObserver<R: Send + ToString>(
+    Recipient<ActionOutcome<R>>,
+);
 
 impl<R: Send + ToString> GameMoveObserver<R> for ActorGameMoveObserver<R> {
     fn result_action(&self, user_id: UserId, game_id: GameId, result: R) {
-        if let Err(e) = self.0.do_send(ActionOutcome { user_id, game_id, result} ) {
+        if let Err(e) = self.0.do_send(ActionOutcome {
+            user_id,
+            game_id,
+            result,
+        }) {
             log::error!("Error with send result of player action: {}", e);
         }
     }
@@ -66,9 +73,13 @@ impl<R: Send + ToString> GameMoveObserver<R> for ActorGameMoveObserver<R> {
  * @start_game(game_id) sends StartGame message to recipient notifying about new game
  * Also we are implementing From<Recipient> for better ergonomics
  */
-pub struct ActorStartGameObserver<US: Send /*: Users*/>(Recipient<StartGame<US>>);
+pub struct ActorStartGameObserver<US: Send /*: Users*/>(
+    Recipient<StartGame<US>>,
+);
 
-impl<US: Send /*: Users */> StartGameObserver<US> for ActorStartGameObserver<US> {
+impl<US: Send /*: Users */> StartGameObserver<US>
+    for ActorStartGameObserver<US>
+{
     fn start_game(&self, game_id: GameId, users: US) {
         let start_game_msg = StartGame { game_id, users };
         if let Err(e) = self.0.do_send(start_game_msg) {
@@ -77,7 +88,9 @@ impl<US: Send /*: Users */> StartGameObserver<US> for ActorStartGameObserver<US>
     }
 }
 
-impl<US: Send /*: Users */> From<Recipient<StartGame<US>>> for ActorStartGameObserver<US> {
+impl<US: Send /*: Users */> From<Recipient<StartGame<US>>>
+    for ActorStartGameObserver<US>
+{
     fn from(src: Recipient<StartGame<US>>) -> Self {
         ActorStartGameObserver(src)
     }

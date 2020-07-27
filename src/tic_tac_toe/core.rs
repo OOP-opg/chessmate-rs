@@ -1,6 +1,6 @@
+use std::fmt::{self, Display, Formatter};
 use std::ops::Not;
 use std::str::FromStr;
-use std::fmt::{self, Display, Formatter};
 
 use crate::common::core::UserId;
 use crate::common::domain::{GameCore, /* Users,*/ Wish};
@@ -20,7 +20,7 @@ pub enum TttAction {
     Surrender,
     Draw,
     ApplyDraw,
-    Move(TttMove)
+    Move(TttMove),
 }
 
 impl Display for TttAction {
@@ -36,14 +36,16 @@ impl Display for TttAction {
 }
 
 #[derive(Debug)]
-pub struct TttMove { pub col: u8, pub row: u8 }
+pub struct TttMove {
+    pub col: u8,
+    pub row: u8,
+}
 
 impl Display for TttMove {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{col},{row}", col=self.col, row=self.row)
+        write!(f, "{col},{row}", col = self.col, row = self.row)
     }
 }
-
 
 impl FromStr for TttAction {
     type Err = String;
@@ -59,16 +61,18 @@ impl FromStr for TttAction {
                     "surrender" => Ok(TttAction::Surrender),
                     "draw" => Ok(TttAction::Draw),
                     "apply_draw" => Ok(TttAction::ApplyDraw),
-                    _ => Err("invalid_action".to_owned())
+                    _ => Err("invalid_action".to_owned()),
                 },
                 "move" => match parse_attrs(attrs[1], ',', 2) {
                     Ok(pos) => match (pos[0].parse(), pos[1].parse()) {
-                        (Ok(col), Ok(row)) => Ok(TttAction::Move( TttMove { col, row } )),
+                        (Ok(col), Ok(row)) => {
+                            Ok(TttAction::Move(TttMove { col, row }))
+                        }
                         _ => Err("invalid_move".to_owned()),
-                    }
-                    _ => Err("invalid_move".to_owned())
-                }
-                _ => Err("invalid_action".to_owned())
+                    },
+                    _ => Err("invalid_move".to_owned()),
+                },
+                _ => Err("invalid_action".to_owned()),
             },
             Err(_) => Err("invalid_action".to_owned()),
         }
@@ -109,7 +113,7 @@ impl TttUsers {
 
     pub fn next(&self, current_player: UserId) -> UserId {
         if current_player == self.first() {
-            self.second() 
+            self.second()
         } else {
             self.first()
         }

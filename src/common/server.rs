@@ -16,7 +16,8 @@ where
 
     let game_server = GameServer::<GC, GL>::default().start();
     log::info!("starting server");
-    let session_route = format!("/api/{game}/new_session/{{user_id}}", game = game_name);
+    let session_route =
+        format!("/api/{game}/new_session/{{user_id}}", game = game_name);
     HttpServer::new(move || {
         App::new()
             .data(game_server.clone())

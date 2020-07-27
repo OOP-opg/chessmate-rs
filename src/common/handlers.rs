@@ -10,8 +10,8 @@ use super::communication::ActorObservers;
 use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{DoAction, ActionOutcome, FindPair, NewGame, JoinToGame};
-use super::query_utils::{parse_query, parse_attrs};
+use super::messages::{ActionOutcome, DoAction, FindPair, JoinToGame, NewGame};
+use super::query_utils::{parse_attrs, parse_query};
 
 struct WsPlayerSession<GC, GL>
 where
@@ -39,7 +39,11 @@ where
         //TODO: handle invalid wish parsing
     }
 
-    fn deliver_new_game(&self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
+    fn deliver_new_game(
+        &self,
+        msg: NewGame,
+        ctx: &mut ws::WebsocketContext<Self>,
+    ) {
         let game_id = msg.0;
         ctx.text(format!("/event/new_game/{}", game_id));
     }
@@ -64,13 +68,13 @@ where
                     game_id
                 } else {
                     //TODO: handle invalid game_id parsing
-                    return
+                    return;
                 };
                 let action = if let Ok(action) = attrs[1].parse() {
                     action
                 } else {
                     //TODO: handle invalid game_id parsing
-                    return
+                    return;
                 };
                 let do_action = DoAction {
                     action,
@@ -78,7 +82,7 @@ where
                     game_id,
                 };
                 self.server.do_send(do_action);
-            },
+            }
             //TODO: handle different errors
             Err(_) => log::error!("Error during parsing attrs to action"),
         };
@@ -90,7 +94,11 @@ where
         result: ActionOutcome<GC::ActionResult>,
         ctx: &mut ws::WebsocketContext<Self>,
     ) {
-        let ActionOutcome { user_id, game_id, result } = result;
+        let ActionOutcome {
+            user_id,
+            game_id,
+            result,
+        } = result;
         log::debug!("GamePool responds with {:?}", result);
         ctx.text(format!("/event/action/{}/{}/{}", game_id, user_id, result));
     }
@@ -116,7 +124,8 @@ where
     }
 }
 
-impl<GC, GL> Handler<ActionOutcome<GC::ActionResult>> for WsPlayerSession<GC, GL>
+impl<GC, GL> Handler<ActionOutcome<GC::ActionResult>>
+    for WsPlayerSession<GC, GL>
 where
     GC: GameCore,
     GL: GameLogic<GC, ActorObservers<GC>>,
@@ -132,12 +141,17 @@ where
     }
 }
 
-impl<GC, GL> StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsPlayerSession<GC, GL>
+impl<GC, GL> StreamHandler<Result<ws::Message, ws::ProtocolError>>
+    for WsPlayerSession<GC, GL>
 where
     GC: GameCore,
     GL: GameLogic<GC, ActorObservers<GC>>,
 {
-    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
+    fn handle(
+        &mut self,
+        msg: Result<ws::Message, ws::ProtocolError>,
+        ctx: &mut Self::Context,
+    ) {
         log::info!("websocket Message: {:?}", msg);
 
         if let Ok(message) = msg {

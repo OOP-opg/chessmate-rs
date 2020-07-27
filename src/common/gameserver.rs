@@ -100,7 +100,11 @@ where
     GL: GameLogic<GC, ActorObservers<GC>>,
 {
     type Result = ();
-    fn handle(&mut self, msg: JoinToGame<GC::ActionResult>, _: &mut Context<Self>) {
+    fn handle(
+        &mut self,
+        msg: JoinToGame<GC::ActionResult>,
+        _: &mut Context<Self>,
+    ) {
         self.join_to_game(msg);
     }
 }

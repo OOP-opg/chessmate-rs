@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use super::core::{TttCore, TttUsers, TttActionResult};
+use super::core::{TttActionResult, TttCore, TttUsers};
 use crate::common::core::{GameId, UserId};
-use crate::common::domain::{GameMoveObserver, StartGameObserver, GameObserver, Id, Lobby, Observers};
-
+use crate::common::domain::{
+    GameMoveObserver, GameObserver, Id, Lobby, Observers, StartGameObserver,
+};
 
 use super::core::TttWish;
 
@@ -27,17 +28,20 @@ impl Observers<TttCore> for TttActorObservers {
 }
 */
 
-pub struct TttLobby /**/ <O: Observers<TttCore>> /* */ 
-    where O: Observers<TttCore>,
-          O::StartGameObserver: StartGameObserver<TttUsers>,
-          O::GameMoveObserver: GameMoveObserver<TttActionResult>, {
+pub struct TttLobby<O: Observers<TttCore>>
+/* */
+where
+    O: Observers<TttCore>,
+    O::StartGameObserver: StartGameObserver<TttUsers>,
+    O::GameMoveObserver: GameMoveObserver<TttActionResult>,
+{
     communication: O::StartGameObserver,
     tickets: HashMap<UserId, (Ticket, /*ActorGameObserver*/ O::GameObserver)>,
     game_counter: GameId,
 }
 
 /*
-impl<O: Observers<TttCore>> Default for TttLobby<O> 
+impl<O: Observers<TttCore>> Default for TttLobby<O>
     where O::StartGameObserver: StartGameObserver<TttUsers> {
     fn default() -> Self {
         TttLobby {
@@ -48,11 +52,12 @@ impl<O: Observers<TttCore>> Default for TttLobby<O>
 }
 */
 
-
 impl<O> Lobby<TttCore, O> for TttLobby<O>
-    where O: Observers<TttCore>,
-          O::GameMoveObserver: GameMoveObserver<TttActionResult>,
-          O::StartGameObserver: StartGameObserver<TttUsers>, {
+where
+    O: Observers<TttCore>,
+    O::GameMoveObserver: GameMoveObserver<TttActionResult>,
+    O::StartGameObserver: StartGameObserver<TttUsers>,
+{
     fn with_communication(communication: O::StartGameObserver) -> Self {
         TttLobby {
             communication,
