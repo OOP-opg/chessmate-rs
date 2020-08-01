@@ -18,7 +18,7 @@ impl GameCore for TttCore {
 #[derive(Debug)]
 pub enum TttAction {
     Surrender,
-    Draw,
+    ProposeDraw,
     ApplyDraw,
     Move(TttMove),
 }
@@ -27,7 +27,7 @@ impl Display for TttAction {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let content = match self {
             Self::Surrender => "surrender".to_owned(),
-            Self::Draw => "draw".to_owned(),
+            Self::ProposeDraw => "propose_draw".to_owned(),
             Self::ApplyDraw => "apply_draw".to_owned(),
             Self::Move(ttt_move) => format!("{}", ttt_move),
         };
@@ -52,14 +52,14 @@ impl FromStr for TttAction {
 
     /// Parse to TttAction string like this:
     /// "move:0,1"
-    /// "action:draw"
+    /// "action:propose_draw"
     /// "action:apply_draw"
     fn from_str(src: &str) -> Result<Self, Self::Err> {
         match parse_attrs(src, ':', 2) {
             Ok(attrs) => match attrs[0] {
                 "action" => match attrs[1] {
                     "surrender" => Ok(TttAction::Surrender),
-                    "draw" => Ok(TttAction::Draw),
+                    "propose_draw" => Ok(TttAction::ProposeDraw),
                     "apply_draw" => Ok(TttAction::ApplyDraw),
                     _ => Err("invalid_action".to_owned()),
                 },
