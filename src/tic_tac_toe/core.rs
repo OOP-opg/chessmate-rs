@@ -81,6 +81,8 @@ impl FromStr for TttAction {
 
 #[derive(Debug)]
 pub enum TttActionResult {
+    Win(UserId),
+    Draw,
     ImpossibleAction,
     Action(TttAction),
 }
@@ -88,8 +90,10 @@ pub enum TttActionResult {
 impl Display for TttActionResult {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let content = match self {
+            Self::Win(user_id) => format!("win_of/{user_id}", user_id=user_id),
+            Self::Action(action) => format!("{}", action),
+            Self::Draw => "draw".to_owned(),
             Self::ImpossibleAction => "impossible_action".to_owned(),
-            Self::Action(action) => format!("{}", action).to_owned(),
         };
         write!(f, "{}", content)
     }
