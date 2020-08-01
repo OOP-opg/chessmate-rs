@@ -73,7 +73,7 @@ impl TttBoard {
         };
 
         // try to find full row or column three times
-        for move_try in &[1, 2, 3] {
+        for move_try in &[0, 1, 2] {
             for method in &[Self::detect_full_row, Self::detect_full_column] {
                 if let Some(matching) = method(self, *move_try) {
                     return on_match(matching);
