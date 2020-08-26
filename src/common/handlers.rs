@@ -10,7 +10,7 @@ use super::communication::ActorObservers;
 use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{ActionOutcome, DoAction, FindPair, JoinToGame, NewGame};
+use super::messages::{ActionOutcome, Fight, DoAction, FindPair, JoinToGame, NewGame};
 use super::query_utils::{parse_attrs, parse_query};
 
 struct WsPlayerSession<GC, GL>
@@ -54,7 +54,8 @@ where
             let join_game_request = JoinToGame {
                 user_id: self.user_id,
                 game_id,
-                addr: ctx.address().recipient(),
+                action_recipient: ctx.address().recipient(),
+                game_recipient: ctx.address().recipient(),
             };
             self.server.do_send(join_game_request);
         }
@@ -102,6 +103,13 @@ where
         log::debug!("GamePool responds with {:?}", result);
         ctx.text(format!("/event/action/{}/{}/{}", game_id, user_id, result));
     }
+
+    /// Notifies frontend about game is ready to play
+    fn deliver_fight(&self, fight: Fight, ctx: &mut ws::WebsocketContext<Self>) {
+        let Fight { game_id } = fight;
+        log::debug!("GamePool say that game {} is ready", game_id);
+        ctx.text(format!("/event/fight/{}", game_id));
+    }
 }
 
 impl<GC, GL> Actor for WsPlayerSession<GC, GL>
@@ -121,6 +129,18 @@ where
 
     fn handle(&mut self, msg: NewGame, ctx: &mut ws::WebsocketContext<Self>) {
         self.deliver_new_game(msg, ctx);
+    }
+}
+
+impl<GC, GL> Handler<Fight> for WsPlayerSession<GC, GL>
+where
+    GC: GameCore,
+    GL: GameLogic<GC, ActorObservers<GC>>,
+{
+    type Result = ();
+
+    fn handle(&mut self, msg: Fight, ctx: &mut ws::WebsocketContext<Self>) {
+        self.deliver_fight(msg, ctx);
     }
 }
 

@@ -12,10 +12,9 @@ struct GameState<MO>
 where
     MO: GameMoveObserver<TttActionResult>,
 {
-    is_ready: bool,
     engine: TttEngine,
     users: TttUsers,
-    observers: HashMap<UserId, MO>,
+    observers: [Option<MO>; 2],
 }
 
 impl<MO> GameState<MO>
@@ -24,16 +23,39 @@ where
 {
     fn waiting(users: TttUsers) -> Self {
         Self {
-            is_ready: false,
             engine: TttEngine::for_users(users.clone()),
             users,
-            observers: HashMap::new(),
+            observers: [None, None],
         }
     }
 
-    fn update(&mut self) {
-        if self.observers.values().count() == 2 {
-            self.is_ready = true;
+    fn add_user(&mut self, user_id: UserId, observer: MO) {
+        if !self.users.contains(user_id) {
+            log::error!(
+                "attempt to call enter_game with user_id not from lobby"
+            );
+            return;
+        }
+        let user_index = if user_id == self.users.first() {
+            0
+        } else {
+            1
+        };
+        if let None = self.observers[user_index] {
+            self.observers[user_index] = Some(observer);
+        } else {
+            log::error!(
+                "attempt to call enter_game with user already registered"
+            )
+        }
+    }
+
+    // if ready, notify all observers
+    // if not, do nothing
+    fn on_update(&self, game_id: GameId) {
+        if self.observers.iter().all(Option::is_some) {
+            self.observers.iter()
+                .for_each(|o| if let Some(observer) = o {observer.start_fight(game_id)})
         }
     }
 }
@@ -79,25 +101,13 @@ where
         observer: O::GameMoveObserver,
     ) {
         if let Some(game_state) = self.games.get_mut(&game_id) {
-            if !game_state.users.contains(user_id) {
-                //TODO: handle case if user is not in game users
-                return;
-            }
-            if game_state.is_ready {
-                //TODO: handle case if game is ready
-                return;
-            }
-            if let None = game_state.observers.get(&user_id) {
-                game_state.observers.insert(user_id, observer);
-                game_state.update();
-            } else {
-                //TODO: handle case if observer is already registered, maybe just replace?
-            }
+            game_state.add_user(user_id, observer);
+            game_state.on_update(game_id);
         } else {
-            //TODO: handle case if game is not registered
+            // handle case if game is not registered
             log::error!(
                 "attempt to call enter_game on game that is not registered"
-            )
+            );
         }
     }
 
@@ -108,10 +118,21 @@ where
         action: TttAction,
     ) {
         if let Some(game) = self.games.get_mut(&game_id) {
-            //FIXME: notify observers
-            let _ = game.engine.react(user_id, action);
+            if !game.observers.iter().all(Option::is_some) {
+                log::error!("do_game_action called when game is not ready");
+                return;
+            }
+            let action_result = game.engine.react(user_id, action);
+            for observer in &game.observers {
+                if let Some(observer) = observer {
+                    observer.result_action(user_id, game_id, action_result)
+                }
+            }
         } else {
-            //TODO: handle case if game is not registered
+            //handle case if game is not registered
+            log::error!(
+                "attempt to call do_game_action on game that is not registered"
+            );
         }
     }
 }

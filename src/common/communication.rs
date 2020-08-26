@@ -3,7 +3,7 @@ use super::domain::{
     GameCore, GameMoveObserver, GameObserver, Observers,
     StartGameObserver, /*Users*/
 };
-use super::messages::{ActionOutcome, NewGame, StartGame};
+use super::messages::{ActionOutcome, NewGame, StartGame, Fight};
 use actix::Recipient;
 use std::marker::PhantomData;
 
@@ -49,18 +49,25 @@ impl From<Recipient<NewGame>> for ActorGameObserver {
  * @result_action(game_id) sends ActionOutcome message to recipient
  * Also we are implementing From<Recipient> for better ergonomics
  */
-pub struct ActorGameMoveObserver<R: Send + ToString>(
-    Recipient<ActionOutcome<R>>,
-);
+pub struct ActorGameMoveObserver<R: Send + ToString> {
+    action_recipient: Recipient<ActionOutcome<R>>,
+    game_recipient: Recipient<Fight>,
+}
 
 impl<R: Send + ToString> GameMoveObserver<R> for ActorGameMoveObserver<R> {
     fn result_action(&self, user_id: UserId, game_id: GameId, result: R) {
-        if let Err(e) = self.0.do_send(ActionOutcome {
+        if let Err(e) = self.action_recipient.do_send(ActionOutcome {
             user_id,
             game_id,
             result,
         }) {
             log::error!("Error with send result of player action: {}", e);
+        }
+    }
+
+    fn start_fight(&self, game_id: GameId) {
+        if let Err(e) = self.game_recipient.do_send(Fight {game_id}) {
+            log::error!("Error with send fight: {}", e);
         }
     }
 }

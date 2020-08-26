@@ -34,14 +34,16 @@ pub struct NewGame(pub GameId);
 /*
  * Message from Session to GamePool (via GameServer) about join to game
  * - user_id and game_id for identify user and game to join to
- * - addr specifies recipient which will be recieve ActionOutcome messages
+ * - action_recipient specifies recipient which will recieve ActionOutcome messages
+ * - game_recipient specifies recipient which will recieve Fight messages
  */
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct JoinToGame<R: Send> {
     pub user_id: UserId,
     pub game_id: GameId,
-    pub addr: Recipient<ActionOutcome<R>>,
+    pub action_recipient: Recipient<ActionOutcome<R>>,
+    pub game_recipient: Recipient<Fight>,
 }
 
 /*
@@ -65,4 +67,13 @@ pub struct ActionOutcome<R> {
     pub user_id: UserId,
     pub game_id: GameId,
     pub result: R,
+}
+
+/*
+ * Message from GamePool to Session actor about game is ready
+ */
+#[derive(Message, Debug)]
+#[rtype(result = "()")]
+pub struct Fight {
+    pub game_id: GameId,
 }

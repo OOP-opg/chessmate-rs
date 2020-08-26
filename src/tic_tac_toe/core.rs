@@ -15,7 +15,7 @@ impl GameCore for TttCore {
     type ActionResult = TttActionResult;
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum TttAction {
     Surrender,
     ProposeDraw,
@@ -35,7 +35,7 @@ impl Display for TttAction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct TttMove {
     pub col: u8,
     pub row: u8,
@@ -79,12 +79,12 @@ impl FromStr for TttAction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum TttActionResult {
     Win(UserId),
+    Action(TttAction),
     Draw,
     ImpossibleAction,
-    Action(TttAction),
 }
 
 impl Display for TttActionResult {
