@@ -8,8 +8,22 @@ use crate::common::domain::{
 
 use super::core::TttWish;
 
+#[derive(Copy, Clone)]
 struct TttInfo {
-    rating: u64,
+    rating: u32,
+}
+
+impl TttInfo {
+    fn is_match(&self, other: Self) -> bool {
+        const RATING_DIFFERENCE_TRESHOLD: u32 = 20;
+        let rating_difference = if self.rating < other.rating {
+            self.rating - other.rating
+        } else {
+            other.rating - self.rating
+        };
+        
+        rating_difference < RATING_DIFFERENCE_TRESHOLD
+    }
 }
 
 struct Ticket {
@@ -17,40 +31,16 @@ struct Ticket {
     info: TttInfo,
 }
 
-/*
-pub struct TttActorObservers;
-*/
-
-/*
-impl Observers<TttCore> for TttActorObservers {
-    type GameObserver = ActorGameObserver;
-    type StartGameObserver =  ActorStartGameObserver<TttUsers>;
-}
-*/
-
 pub struct TttLobby<O: Observers<TttCore>>
-/* */
 where
     O: Observers<TttCore>,
     O::StartGameObserver: StartGameObserver<TttUsers>,
     O::GameMoveObserver: GameMoveObserver<TttActionResult>,
 {
     communication: O::StartGameObserver,
-    tickets: HashMap<UserId, (Ticket, /*ActorGameObserver*/ O::GameObserver)>,
+    tickets: HashMap<UserId, (Ticket, O::GameObserver)>,
     game_counter: GameId,
 }
-
-/*
-impl<O: Observers<TttCore>> Default for TttLobby<O>
-    where O::StartGameObserver: StartGameObserver<TttUsers> {
-    fn default() -> Self {
-        TttLobby {
-            tickets: HashMap::new(),
-            game_counter: GameId::new(),
-        }
-    }
-}
-*/
 
 impl<O> Lobby<TttCore, O> for TttLobby<O>
 where
@@ -67,47 +57,52 @@ where
     }
     fn add_ticket(
         &mut self,
-        new_user: UserId,
+        new_user_id: UserId,
         new_wish: TttWish,
         new_observer: O::GameObserver,
     ) {
-        log::debug!("Got wish {:?} from {:?}", new_wish, new_user);
+        log::debug!("Got wish {:?} from {:?}", new_wish, new_user_id);
 
         let new_ticket = Ticket {
             wish: new_wish,
             info: TttInfo { rating: 1000 },
         };
 
-        let mut paired = false;
         let mut paired_user = None;
 
-        for ticket in &self.tickets {
-            let (Ticket { wish, info: _ }, observer) = ticket.1;
-            let user_id = *ticket.0;
+        for (user_id, ticket) in &self.tickets {
+            let (Ticket { wish, info }, observer) = ticket;
+            let user_id = *user_id;
 
-            if new_user == user_id {
+            if new_user_id == user_id {
+                // added ticket with user that already in tickets
                 continue;
             }
-            if new_wish.sign != wish.sign {
-                paired_user.replace(user_id);
-                log::info!("Find pair for {} and {}", user_id, new_user);
 
+            if (new_wish.sign != wish.sign) && new_ticket.info.is_match(*info) {
+                // got match
+                log::info!("Find pair for {} and {}", user_id, new_user_id);
+                paired_user = Some(user_id);
+                self.game_counter.inc();
+
+                // notify observers
                 observer.notify(self.game_counter);
                 new_observer.notify(self.game_counter);
-                let users = TttUsers(user_id, new_user);
+
+                //notify gameserver about new game
+                let users = TttUsers(user_id, new_user_id);
                 self.communication.start_game(self.game_counter, users);
 
-                self.game_counter.inc();
-                paired = true;
                 break;
             }
         }
-        if paired {
-            let _ = self.tickets.remove(&paired_user.unwrap());
+        if let Some(paired_user) = paired_user {
+            // because we have found user, we are remove our match
+            // and don't add yourself
+            let _ = self.tickets.remove(&paired_user);
         } else {
-            let _ = self.tickets.insert(new_user, (new_ticket, new_observer));
+            // nothing is matched, so just add yourself and wait
+            let _ = self.tickets.insert(new_user_id, (new_ticket, new_observer));
         }
     }
 }
-/*
-*/
