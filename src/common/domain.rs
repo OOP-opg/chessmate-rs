@@ -11,7 +11,7 @@ pub trait Id {
 pub trait GameCore: 'static {
     type Wish: Wish + Send + 'static;
     type Users: Send;
-    type Action: Send + FromStr;
+    type Action: Send + FromStr + Debug;
     type ActionResult: Send + Display + Debug;
 }
 
