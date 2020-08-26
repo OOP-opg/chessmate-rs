@@ -3,7 +3,7 @@ use super::domain::{
     GameCore, GameMoveObserver, GameObserver, Observers,
     StartGameObserver, /*Users*/
 };
-use super::messages::{ActionOutcome, NewGame, StartGame, Fight};
+use super::messages::{ActionOutcome, Fight, NewGame, StartGame};
 use actix::Recipient;
 use std::marker::PhantomData;
 
@@ -66,7 +66,7 @@ impl<R: Send + ToString> GameMoveObserver<R> for ActorGameMoveObserver<R> {
     }
 
     fn start_fight(&self, game_id: GameId) {
-        if let Err(e) = self.game_recipient.do_send(Fight {game_id}) {
+        if let Err(e) = self.game_recipient.do_send(Fight { game_id }) {
             log::error!("Error with send fight: {}", e);
         }
     }

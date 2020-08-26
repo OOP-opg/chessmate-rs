@@ -10,7 +10,9 @@ use super::communication::ActorObservers;
 use super::core::UserId;
 use super::domain::{GameCore, GameLogic};
 use super::gameserver::GameServer;
-use super::messages::{ActionOutcome, Fight, DoAction, FindPair, JoinToGame, NewGame};
+use super::messages::{
+    ActionOutcome, DoAction, Fight, FindPair, JoinToGame, NewGame,
+};
 use super::query_utils::{parse_attrs, parse_query};
 
 struct WsPlayerSession<GC, GL>
@@ -105,7 +107,11 @@ where
     }
 
     /// Notifies frontend about game is ready to play
-    fn deliver_fight(&self, fight: Fight, ctx: &mut ws::WebsocketContext<Self>) {
+    fn deliver_fight(
+        &self,
+        fight: Fight,
+        ctx: &mut ws::WebsocketContext<Self>,
+    ) {
         let Fight { game_id } = fight;
         log::debug!("GamePool say that game {} is ready", game_id);
         ctx.text(format!("/event/fight/{}", game_id));

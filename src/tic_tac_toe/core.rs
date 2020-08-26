@@ -90,7 +90,9 @@ pub enum TttActionResult {
 impl Display for TttActionResult {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let content = match self {
-            Self::Win(user_id) => format!("win_of/{user_id}", user_id=user_id),
+            Self::Win(user_id) => {
+                format!("win_of/{user_id}", user_id = user_id)
+            }
             Self::Action(action) => format!("{}", action),
             Self::Draw => "draw".to_owned(),
             Self::ImpossibleAction => "impossible_action".to_owned(),

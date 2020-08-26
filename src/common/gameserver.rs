@@ -1,5 +1,5 @@
-use super::communication::{ActorObservers, ActorGameMoveObserver};
-use super::domain::{GameCore, GameLogic, Lobby, GamePool};
+use super::communication::{ActorGameMoveObserver, ActorObservers};
+use super::domain::{GameCore, GameLogic, GamePool, Lobby};
 use super::messages::{DoAction, FindPair, JoinToGame, StartGame};
 
 use actix::{Actor, AsyncContext, Context, Handler};
@@ -28,7 +28,7 @@ where
     }
 
     fn start_game(&mut self, msg: StartGame<GC::Users>) {
-        let StartGame {game_id, users } = msg;
+        let StartGame { game_id, users } = msg;
         log::debug!("New game: {}", game_id);
         self.gamepool.new_game(game_id, users);
     }
@@ -40,18 +40,26 @@ where
             action_recipient,
             game_recipient,
         } = msg;
-        let move_observer = ActorGameMoveObserver {action_recipient, game_recipient};
+        let move_observer = ActorGameMoveObserver {
+            action_recipient,
+            game_recipient,
+        };
         log::debug!("User {} wants to join to {}", msg.user_id, msg.game_id);
         self.gamepool.enter_game(game_id, user_id, move_observer);
     }
 
     fn do_action(&mut self, msg: DoAction<GC::Action>) {
-        let DoAction { 
+        let DoAction {
             game_id,
             user_id,
             action,
-        } = msg; 
-        log::debug!("User {} wants do {:?} in {}", msg.user_id, action, msg.game_id);
+        } = msg;
+        log::debug!(
+            "User {} wants do {:?} in {}",
+            msg.user_id,
+            action,
+            msg.game_id
+        );
         self.gamepool.do_game_action(game_id, user_id, action);
     }
 }

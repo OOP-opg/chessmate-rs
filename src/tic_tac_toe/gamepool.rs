@@ -36,11 +36,7 @@ where
             );
             return;
         }
-        let user_index = if user_id == self.users.first() {
-            0
-        } else {
-            1
-        };
+        let user_index = if user_id == self.users.first() { 0 } else { 1 };
         if let None = self.observers[user_index] {
             self.observers[user_index] = Some(observer);
         } else {
@@ -54,8 +50,11 @@ where
     // if not, do nothing
     fn on_update(&self, game_id: GameId) {
         if self.observers.iter().all(Option::is_some) {
-            self.observers.iter()
-                .for_each(|o| if let Some(observer) = o {observer.start_fight(game_id)})
+            self.observers.iter().for_each(|o| {
+                if let Some(observer) = o {
+                    observer.start_fight(game_id)
+                }
+            })
         }
     }
 }

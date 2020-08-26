@@ -21,7 +21,7 @@ impl TttInfo {
         } else {
             other.rating - self.rating
         };
-        
+
         rating_difference < RATING_DIFFERENCE_TRESHOLD
     }
 }
@@ -102,7 +102,8 @@ where
             let _ = self.tickets.remove(&paired_user);
         } else {
             // nothing is matched, so just add yourself and wait
-            let _ = self.tickets.insert(new_user_id, (new_ticket, new_observer));
+            let _ =
+                self.tickets.insert(new_user_id, (new_ticket, new_observer));
         }
     }
 }

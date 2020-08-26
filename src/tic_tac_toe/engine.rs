@@ -79,7 +79,7 @@ impl TttBoard {
     fn extract_triple(&self, choose: impl Fn(u8) -> u8) -> [Pane; 3] {
         let mut panes = [Pane::Empty; 3];
         for n in &[0, 1, 2] {
-            panes[*n as usize] = self.board[choose(*n) as usize]; 
+            panes[*n as usize] = self.board[choose(*n) as usize];
         }
 
         panes
@@ -159,14 +159,14 @@ enum Diagonal {
 
 enum TttEvent {
     WantDraw(UserId),
-    Silence
+    Silence,
 }
 
 pub struct TttEngine {
     players: TttUsers,
     current_player: UserId,
     board: TttBoard,
-    event: TttEvent, 
+    event: TttEvent,
 }
 
 impl TttEngine {
@@ -198,7 +198,6 @@ impl TttEngine {
         result
     }
 
-
     fn handle_move(
         &mut self,
         user_id: UserId,
@@ -213,8 +212,12 @@ impl TttEngine {
             if let Some(final_result) = self.board.detect_final() {
                 // pass result of the game
                 match final_result {
-                    FinalResult::XsWin => TttActionResult::Win(self.players.first()),
-                    FinalResult::OsWin => TttActionResult::Win(self.players.second()),
+                    FinalResult::XsWin => {
+                        TttActionResult::Win(self.players.first())
+                    }
+                    FinalResult::OsWin => {
+                        TttActionResult::Win(self.players.second())
+                    }
                     FinalResult::Draw => TttActionResult::Draw,
                 }
             } else {
