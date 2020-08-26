@@ -1,5 +1,5 @@
-use super::communication::ActorObservers;
-use super::domain::{GameCore, GameLogic, Lobby};
+use super::communication::{ActorObservers, ActorGameMoveObserver};
+use super::domain::{GameCore, GameLogic, Lobby, GamePool};
 use super::messages::{DoAction, FindPair, JoinToGame, StartGame};
 
 use actix::{Actor, AsyncContext, Context, Handler};
@@ -28,21 +28,31 @@ where
     }
 
     fn start_game(&mut self, msg: StartGame<GC::Users>) {
-        //FIXME: starting game on event from lobby
-        log::debug!("New game {}", msg.game_id);
-        log::error!("UNIMPLEMENTED");
+        let StartGame {game_id, users } = msg;
+        log::debug!("New game: {}", game_id);
+        self.gamepool.new_game(game_id, users);
     }
 
     fn join_to_game(&mut self, msg: JoinToGame<GC::ActionResult>) {
-        //FIXME: join user to game on event from frontend
+        let JoinToGame {
+            user_id,
+            game_id,
+            action_recipient,
+            game_recipient,
+        } = msg;
+        let move_observer = ActorGameMoveObserver {action_recipient, game_recipient};
         log::debug!("User {} wants to join to {}", msg.user_id, msg.game_id);
-        log::error!("UNIMPLEMENTED");
+        self.gamepool.enter_game(game_id, user_id, move_observer);
     }
 
     fn do_action(&mut self, msg: DoAction<GC::Action>) {
-        //FIXME: send player action to gamepool
-        log::debug!("User {} wants do smth in {}", msg.user_id, msg.game_id);
-        log::error!("UNIMPLEMENTED");
+        let DoAction { 
+            game_id,
+            user_id,
+            action,
+        } = msg; 
+        log::debug!("User {} wants do {:?} in {}", msg.user_id, action, msg.game_id);
+        self.gamepool.do_game_action(game_id, user_id, action);
     }
 }
 

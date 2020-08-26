@@ -50,8 +50,8 @@ impl From<Recipient<NewGame>> for ActorGameObserver {
  * Also we are implementing From<Recipient> for better ergonomics
  */
 pub struct ActorGameMoveObserver<R: Send + ToString> {
-    action_recipient: Recipient<ActionOutcome<R>>,
-    game_recipient: Recipient<Fight>,
+    pub action_recipient: Recipient<ActionOutcome<R>>,
+    pub game_recipient: Recipient<Fight>,
 }
 
 impl<R: Send + ToString> GameMoveObserver<R> for ActorGameMoveObserver<R> {
