@@ -8,12 +8,13 @@ use crate::handlers::new_session;
 use crate::runtime::GameServer;
 
 use crate::chess::{ChessGame, ChessWish};
+use crate::tic_tac_toe::{TttGame, TttWish};
 
 use crate::lobby::Lobby;
 use crate::observers::TicketObserver;
 
 pub async fn run_server(
-    listener: Addr<GameServer<ChessWish, Lobby<ChessWish>>>,
+    listener: Addr<GameServer<TttWish, Lobby<TttWish>>>,
 ) -> std::io::Result<()> {
     env_logger::init();
 
@@ -30,6 +31,7 @@ pub async fn run_server(
             )
             .service(fs::Files::new("/static", "./static"))
     })
+    .workers(1 as usize)
     .bind("127.0.0.1:8000")?
     .run()
     .await

@@ -4,21 +4,21 @@ use crate::core::{GameId, UserId};
 use crate::domain::{AbstractLobby, Id, PairObserver, SetTicketError, Wish};
 use crate::observers::TicketObserver;
 
-pub struct Lobby<W: Wish> {
+pub struct Lobby2<W: Wish> {
     tickets: HashMap<UserId, (W, TicketObserver)>,
     game_counter: GameId,
 }
 
-impl<W: Wish> Lobby<W> {
+impl<W: Wish> Lobby2<W> {
 
 }
 
-impl<W> AbstractLobby<W, TicketObserver> for Lobby<W>
+impl<W> AbstractLobby<W, TicketObserver> for Lobby2<W>
 where
     W: Wish,
 {
-    fn new() -> Lobby<W> {
-        Lobby {
+    fn new() -> Self {
+        Lobby2 {
             tickets: HashMap::new(),
             game_counter: GameId::new(),
         }
