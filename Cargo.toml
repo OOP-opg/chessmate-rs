@@ -7,15 +7,15 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-log = "0.4.0"
-env_logger = "0.7.1"
-# actix = { version = "0.9.0", registry = "gitlab" }
-actix = "0.9.0"
-# actix-web = { version = "2.0.0", registry = "gitlab" }
-actix-web = "2.0.0"
-# actix-web-actors = { version = "2.0.0", registry = "gitlab" }
-actix-web-actors = "2.0.0"
-# actix-rt = { version = "1.0.0", registry = "gitlab" }
-actix-rt = "1.0.0"
-# actix-files = { version = "0.2.2", registry = "gitlab" }
-actix-files = "0.2.2" 
+log = "0.4.17"
+env_logger = "0.9.1"
+# actix = { version = "0.13.0", registry = "gitlab" }
+actix = "0.13.0"
+# actix-web = { version = "4.2.1", registry = "gitlab" }
+actix-web = "4.2.1"
+# actix-web-actors = { version = "4.1.0", registry = "gitlab" }
+actix-web-actors = "4.1.0"
+# actix-rt = { version = "2.7.0", registry = "gitlab" }
+actix-rt = "2.7.0"
+# actix-files = { version = "0.6.2", registry = "gitlab" }
+actix-files = "0.6.2"
